@@ -1,25 +1,32 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-@Table(name = "tipo_almacen")
+@Table(name = "tipo_almacen")  // Nombre de la tabla en la base de datos
 public class TipoAlmacen {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idTipoAlmacen;
-
-    @Column(nullable = false, unique = true)
+    private Long id;
     private String tipo;
 
-    // Getters y setters
-    public Long getIdTipoAlmacen() {
-        return idTipoAlmacen;
+    // Constructor por defecto
+    public TipoAlmacen() {}
+
+    // Constructor con parámetros
+    public TipoAlmacen(String tipo) {
+        this.tipo = tipo;
     }
 
-    public void setIdTipoAlmacen(Long idTipoAlmacen) {
-        this.idTipoAlmacen = idTipoAlmacen;
+    // Getters y setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setIdAlmacen(Long id) {
+        this.id = id;
     }
 
     public String getTipo() {

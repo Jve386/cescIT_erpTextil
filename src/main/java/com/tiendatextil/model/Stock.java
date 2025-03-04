@@ -1,35 +1,30 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
-@Table(name = "stock")
 public class Stock {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idStock;
-
     @ManyToOne
-    @JoinColumn(name = "id_articulo", nullable = false)
+    @JoinColumn(name = "articulo_id")
     private Articulo articulo;
 
     @ManyToOne
-    @JoinColumn(name = "id_almacen", nullable = false)
+    @JoinColumn(name = "almacen_id")
     private Almacen almacen;
 
-    @Column(nullable = false)
-    private Integer cantidad;
+    private int cantidad;
+
+    // Constructor adecuado
+    public Stock(Articulo articulo, Almacen almacen, int cantidad) {
+        this.articulo = articulo;
+        this.almacen = almacen;
+        this.cantidad = cantidad;
+    }
 
     // Getters y setters
-    public Long getIdStock() {
-        return idStock;
-    }
-
-    public void setIdStock(Long idStock) {
-        this.idStock = idStock;
-    }
-
     public Articulo getArticulo() {
         return articulo;
     }
@@ -46,11 +41,11 @@ public class Stock {
         this.almacen = almacen;
     }
 
-    public Integer getCantidad() {
+    public int getCantidad() {
         return cantidad;
     }
 
-    public void setCantidad(Integer cantidad) {
+    public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
     }
 }

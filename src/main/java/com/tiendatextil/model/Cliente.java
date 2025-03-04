@@ -1,30 +1,36 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "clientes")
 public class Cliente {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idCliente;
-
-    @Column(nullable = false)
+    private Long id;
     private String nombre;
-
-    @Column(nullable = false, unique = true)
-    private String email;
-
+    private String correo;
     private String telefono;
 
-    // Getters y setters
-    public Long getIdCliente() {
-        return idCliente;
+    // Constructor por defecto
+    public Cliente() {}
+
+    // Constructor con parámetros
+    public Cliente(String nombre, String correo, String telefono) {
+        this.nombre = nombre;
+        this.correo = correo;
+        this.telefono = telefono;
     }
 
-    public void setIdCliente(Long idCliente) {
-        this.idCliente = idCliente;
+    // Getters y setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setIdCliente(Long id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -35,12 +41,12 @@ public class Cliente {
         this.nombre = nombre;
     }
 
-    public String getEmail() {
-        return email;
+    public String getCorreo() {
+        return correo;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
     public String getTelefono() {

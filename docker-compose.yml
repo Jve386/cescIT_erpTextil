@@ -21,10 +21,6 @@ services:
       - "8080:8080"
     networks:
       - crud-network
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/cruddb
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
     restart: always
 
 networks:

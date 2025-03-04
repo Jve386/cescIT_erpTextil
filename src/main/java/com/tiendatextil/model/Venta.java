@@ -1,48 +1,36 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
-@Table(name = "ventas")
 public class Venta {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idVenta;
-
     @ManyToOne
-    @JoinColumn(name = "id_cliente")
+    @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
     @ManyToOne
-    @JoinColumn(name = "id_almacen", nullable = false)
+    @JoinColumn(name = "almacen_id")
     private Almacen almacen;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fecha = new Date();
+    private double precioVenta;
+    private double totalVenta;
+    private String ticket;
+    private String estado;
 
-    @Column(nullable = false)
-    private Double totalSinIva;
-
-    @Column(nullable = false)
-    private Double totalConIva;
-
-    @Column(nullable = false, unique = true)
-    private String numeroTicket;
-
-    @Column(nullable = false)
-    private String estado = "completada";
+    // Constructor adecuado
+    public Venta(Cliente cliente, Almacen almacen, double precioVenta, double totalVenta, String ticket, String estado) {
+        this.cliente = cliente;
+        this.almacen = almacen;
+        this.precioVenta = precioVenta;
+        this.totalVenta = totalVenta;
+        this.ticket = ticket;
+        this.estado = estado;
+    }
 
     // Getters y setters
-    public Long getIdVenta() {
-        return idVenta;
-    }
-
-    public void setIdVenta(Long idVenta) {
-        this.idVenta = idVenta;
-    }
-
     public Cliente getCliente() {
         return cliente;
     }
@@ -59,36 +47,28 @@ public class Venta {
         this.almacen = almacen;
     }
 
-    public Date getFecha() {
-        return fecha;
+    public double getPrecioVenta() {
+        return precioVenta;
     }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
+    public void setPrecioVenta(double precioVenta) {
+        this.precioVenta = precioVenta;
     }
 
-    public Double getTotalSinIva() {
-        return totalSinIva;
+    public double getTotalVenta() {
+        return totalVenta;
     }
 
-    public void setTotalSinIva(Double totalSinIva) {
-        this.totalSinIva = totalSinIva;
+    public void setTotalVenta(double totalVenta) {
+        this.totalVenta = totalVenta;
     }
 
-    public Double getTotalConIva() {
-        return totalConIva;
+    public String getTicket() {
+        return ticket;
     }
 
-    public void setTotalConIva(Double totalConIva) {
-        this.totalConIva = totalConIva;
-    }
-
-    public String getNumeroTicket() {
-        return numeroTicket;
-    }
-
-    public void setNumeroTicket(String numeroTicket) {
-        this.numeroTicket = numeroTicket;
+    public void setTicket(String ticket) {
+        this.ticket = ticket;
     }
 
     public String getEstado() {

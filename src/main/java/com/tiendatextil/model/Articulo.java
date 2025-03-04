@@ -1,37 +1,46 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
-@Table(name = "articulo")
+@Table(name = "articulos")
 public class Articulo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idArticulo;
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "id_producto", nullable = false)
     private Producto producto;
 
     @ManyToOne
-    @JoinColumn(name = "id_talla", nullable = false)
     private Talla talla;
 
     @ManyToOne
-    @JoinColumn(name = "id_color", nullable = false)
     private Color color;
 
-    @Column
-    private Double precioCoste;
+    private double precio;
+
+    // Constructor por defecto
+    public Articulo() {}
+
+    // Constructor con parámetros
+    public Articulo(Producto producto, Talla talla, Color color, double precio) {
+        this.producto = producto;
+        this.talla = talla;
+        this.color = color;
+        this.precio = precio;
+    }
 
     // Getters y setters
     public Long getIdArticulo() {
-        return idArticulo;
+        return id;
     }
 
-    public void setIdArticulo(Long idArticulo) {
-        this.idArticulo = idArticulo;
+    public void setIdArticulo(Long id) {
+        this.id = id;
     }
 
     public Producto getProducto() {
@@ -58,11 +67,11 @@ public class Articulo {
         this.color = color;
     }
 
-    public Double getPrecioCoste() {
-        return precioCoste;
+    public double getPrecio() {
+        return precio;
     }
 
-    public void setPrecioCoste(Double precioCoste) {
-        this.precioCoste = precioCoste;
+    public void setPrecio(double precio) {
+        this.precio = precio;
     }
 }

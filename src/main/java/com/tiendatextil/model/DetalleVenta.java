@@ -1,47 +1,38 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
-@Table(name = "detalle_ventas")
 public class DetalleVenta {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDetalleVenta;
-
     @ManyToOne
-    @JoinColumn(name = "id_venta", nullable = false)
+    @JoinColumn(name = "venta_id")
     private Venta venta;
 
     @ManyToOne
-    @JoinColumn(name = "id_articulo", nullable = false)
+    @JoinColumn(name = "articulo_id")
     private Articulo articulo;
 
-    @Column(nullable = false)
-    private Integer cantidad;
+    private int cantidad;
+    private double precioUnitario;
+    private double totalArticulo;
+    private double descuento;
+    private double totalConDescuento;
 
-    @Column(nullable = false)
-    private Double precioUnitario;
-
-    @Column(nullable = false)
-    private Double precioSinIva;
-
-    @Column(nullable = false)
-    private Double iva;
-
-    @Column(nullable = false)
-    private Double precioTotal;
+    // Constructor adecuado
+    public DetalleVenta(Venta venta, Articulo articulo, int cantidad, double precioUnitario, double totalArticulo, double descuento, double totalConDescuento) {
+        this.venta = venta;
+        this.articulo = articulo;
+        this.cantidad = cantidad;
+        this.precioUnitario = precioUnitario;
+        this.totalArticulo = totalArticulo;
+        this.descuento = descuento;
+        this.totalConDescuento = totalConDescuento;
+    }
 
     // Getters y setters
-    public Long getIdDetalleVenta() {
-        return idDetalleVenta;
-    }
-
-    public void setIdDetalleVenta(Long idDetalleVenta) {
-        this.idDetalleVenta = idDetalleVenta;
-    }
-
     public Venta getVenta() {
         return venta;
     }
@@ -58,43 +49,43 @@ public class DetalleVenta {
         this.articulo = articulo;
     }
 
-    public Integer getCantidad() {
+    public int getCantidad() {
         return cantidad;
     }
 
-    public void setCantidad(Integer cantidad) {
+    public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
     }
 
-    public Double getPrecioUnitario() {
+    public double getPrecioUnitario() {
         return precioUnitario;
     }
 
-    public void setPrecioUnitario(Double precioUnitario) {
+    public void setPrecioUnitario(double precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
 
-    public Double getPrecioSinIva() {
-        return precioSinIva;
+    public double getTotalArticulo() {
+        return totalArticulo;
     }
 
-    public void setPrecioSinIva(Double precioSinIva) {
-        this.precioSinIva = precioSinIva;
+    public void setTotalArticulo(double totalArticulo) {
+        this.totalArticulo = totalArticulo;
     }
 
-    public Double getIva() {
-        return iva;
+    public double getDescuento() {
+        return descuento;
     }
 
-    public void setIva(Double iva) {
-        this.iva = iva;
+    public void setDescuento(double descuento) {
+        this.descuento = descuento;
     }
 
-    public Double getPrecioTotal() {
-        return precioTotal;
+    public double getTotalConDescuento() {
+        return totalConDescuento;
     }
 
-    public void setPrecioTotal(Double precioTotal) {
-        this.precioTotal = precioTotal;
+    public void setTotalConDescuento(double totalConDescuento) {
+        this.totalConDescuento = totalConDescuento;
     }
 }

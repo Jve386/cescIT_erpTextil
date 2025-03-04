@@ -1,32 +1,22 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Entity
-@Table(name = "roles")
+@Getter
+@Setter
 public class Rol {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idRol;
-
-    @Column(nullable = false, unique = true)
     private String nombre;
 
-    // Getters y setters
-    public Long getIdRol() {
-        return idRol;
-    }
-
-    public void setIdRol(Long idRol) {
-        this.idRol = idRol;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
+    // Constructor
+    public Rol(String nombre) {
         this.nombre = nombre;
     }
 }

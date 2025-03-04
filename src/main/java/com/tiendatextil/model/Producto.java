@@ -1,38 +1,41 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
-@Table(name = "productos")
+@Table(name = "productos")  // Nombre de la tabla en la base de datos
 public class Producto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idProducto;
-
-    @Column(nullable = false)
+    private Long id;
     private String nombre;
-
     private String descripcion;
-
-    @Column(nullable = false)
-    private Double precioBase;
+    private double precioBase;
 
     @ManyToOne
-    @JoinColumn(name = "id_categoria")
     private Categoria categoria;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt = new Date();
+    // Constructor por defecto
+    public Producto() {}
 
-    // Getters y setters
-    public Long getIdProducto() {
-        return idProducto;
+    // Constructor con parámetros
+    public Producto(String nombre, String descripcion, double precioBase, Categoria categoria) {
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.precioBase = precioBase;
+        this.categoria = categoria;
     }
 
-    public void setIdProducto(Long idProducto) {
-        this.idProducto = idProducto;
+    // Getters y setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setIdProducto(Long id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -51,11 +54,11 @@ public class Producto {
         this.descripcion = descripcion;
     }
 
-    public Double getPrecioBase() {
+    public double getPrecioBase() {
         return precioBase;
     }
 
-    public void setPrecioBase(Double precioBase) {
+    public void setPrecioBase(double precioBase) {
         this.precioBase = precioBase;
     }
 
@@ -65,13 +68,5 @@ public class Producto {
 
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
     }
 }
