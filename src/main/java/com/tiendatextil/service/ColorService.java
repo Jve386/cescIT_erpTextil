@@ -36,7 +36,7 @@ public class ColorService {
     // Actualizar un color
     public Color actualizarColor(Long id, Color color) {
         if (colorRepository.existsById(id)) {
-            color.setId(id); // Aseguramos que el ID no cambie
+            color.setId(id);
             return colorRepository.save(color);
         } else {
             throw new RuntimeException("Color no encontrado");

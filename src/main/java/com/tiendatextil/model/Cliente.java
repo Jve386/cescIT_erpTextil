@@ -24,10 +24,9 @@ public class Cliente {
 
     private String telefono;
 
-    // Constructor por defecto
+
     public Cliente() {}
 
-    // Constructor con parámetros
     public Cliente(String nombre, String email, String telefono) {
         this.nombre = nombre;
         this.email = email;

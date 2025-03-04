@@ -29,7 +29,6 @@ public class Stock {
 
     private int cantidad;
 
-    // Constructor adecuado
     public Stock(Articulo articulo, Almacen almacen, int cantidad) {
         this.articulo = articulo;
         this.almacen = almacen;

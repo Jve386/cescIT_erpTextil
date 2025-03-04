@@ -26,10 +26,10 @@ public class Almacen {
     @JoinColumn(name = "id_tipo_almacen", nullable = false)
     private TipoAlmacen tipoAlmacen;
 
-    // Constructor por defecto
+
     public Almacen() {}
 
-    // Constructor con parámetros
+
     public Almacen(String nombre, String direccion, TipoAlmacen tipoAlmacen) {
         this.nombre = nombre;
         this.direccion = direccion;

@@ -28,10 +28,10 @@ public class Producto {
     @JoinColumn(name = "id_categoria")
     private Categoria categoria;
 
-    // Constructor por defecto
+
     public Producto() {}
 
-    // Constructor con parámetros
+
     public Producto(String nombre, String descripcion, double precioBase, Categoria categoria) {
         this.nombre = nombre;
         this.descripcion = descripcion;

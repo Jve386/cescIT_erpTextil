@@ -39,10 +39,10 @@ public class DetalleVenta {
     @Column(name = "precio_total", nullable = false)
     private double precioTotal;
 
-    // Constructor por defecto
+
     public DetalleVenta() {}
 
-    // Constructor con parámetros
+
     public DetalleVenta(Venta venta, Articulo articulo, int cantidad, double precioUnitario, double precioSinIva, double iva, double precioTotal) {
         this.venta = venta;
         this.articulo = articulo;

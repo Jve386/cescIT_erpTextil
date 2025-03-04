@@ -19,11 +19,9 @@ public class TipoAlmacen {
     @Column(nullable = false, unique = true)
     private String tipo;
 
-    // Constructor por defecto
     public TipoAlmacen() {
     }
 
-    // Constructor con parámetros
     public TipoAlmacen(String tipo) {
         this.tipo = tipo;
     }

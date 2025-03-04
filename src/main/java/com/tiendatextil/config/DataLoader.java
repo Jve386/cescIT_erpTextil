@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+
 @Component
 public class DataLoader implements CommandLineRunner {
 
@@ -183,7 +184,7 @@ public class DataLoader implements CommandLineRunner {
 
                 // Aquí calculamos precioSinIva, iva, y precioTotal
                 double precioSinIvaCamiseta = 9.99 * 2;
-                double ivaCamiseta = precioSinIvaCamiseta * 0.21; // Asumiendo IVA del 21%
+                double ivaCamiseta = precioSinIvaCamiseta * 0.21;
                 double precioTotalCamiseta = precioSinIvaCamiseta + ivaCamiseta;
 
                 double precioSinIvaPantalon = 29.99 * 1;
@@ -228,11 +229,12 @@ public class DataLoader implements CommandLineRunner {
                 detalleVentaRepository.save(detalleVentaMariaZapatillas);
             }
 
+
             System.out.println("Carga de datos completada exitosamente.");
         } catch (Exception e) {
             System.err.println("Error al cargar datos: " + e.getMessage());
             e.printStackTrace();
-            throw e; // Para asegurarte de que Spring vea la excepción
+            throw e;
         }
     }
 }

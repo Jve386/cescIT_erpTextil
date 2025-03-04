@@ -36,7 +36,7 @@ public class RolService {
     // Actualizar un rol
     public Rol actualizarRol(Long id, Rol rol) {
         if (rolRepository.existsById(id)) {
-            rol.setId(id);  // Aseguramos que el ID no cambie
+            rol.setId(id);
             return rolRepository.save(rol);
         } else {
             throw new RuntimeException("Rol no encontrado");

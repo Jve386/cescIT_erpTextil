@@ -19,10 +19,8 @@ public class Talla {
     @Column(nullable = false, unique = true)
     private String talla;
 
-    // Constructor por defecto
     public Talla() {}
 
-    // Constructor con parámetros
     public Talla(String talla) {
         this.talla = talla;
     }

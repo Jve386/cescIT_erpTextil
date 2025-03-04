@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,10 +32,9 @@ public class Articulo {
     @Column(name = "precio_coste")
     private double precio;
 
-    // Constructor por defecto
+
     public Articulo() {}
 
-    // Constructor con parámetros
     public Articulo(Producto producto, Talla talla, Color color, double precio) {
         this.producto = producto;
         this.talla = talla;

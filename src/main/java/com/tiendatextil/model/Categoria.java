@@ -18,10 +18,9 @@ public class Categoria {
     @Column(nullable = false, unique = true)
     private String nombre;
 
-    // Constructor por defecto
     public Categoria() {}
 
-    // Constructor con parámetros
+
     public Categoria(String nombre) {
         this.nombre = nombre;
     }

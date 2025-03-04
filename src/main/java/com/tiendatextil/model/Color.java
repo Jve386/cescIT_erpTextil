@@ -19,10 +19,9 @@ public class Color {
     @Column(nullable = false, unique = true)
     private String color;
 
-    // Constructor por defecto
+
     public Color() {}
 
-    // Constructor con parámetros
     public Color(String color) {
         this.color = color;
     }

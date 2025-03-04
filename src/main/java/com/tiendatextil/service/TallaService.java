@@ -36,7 +36,7 @@ public class TallaService {
     // Actualizar una talla
     public Talla actualizarTalla(Long id, Talla talla) {
         if (tallaRepository.existsById(id)) {
-            talla.setId(id);  // Aseguramos que el ID no cambie
+            talla.setId(id);
             return tallaRepository.save(talla);
         } else {
             throw new RuntimeException("Talla no encontrada");

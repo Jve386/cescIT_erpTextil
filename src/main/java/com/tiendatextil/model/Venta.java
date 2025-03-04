@@ -40,10 +40,8 @@ public class Venta {
     @Temporal(TemporalType.TIMESTAMP)
     private Date fecha;
 
-    // Constructor por defecto
     public Venta() {}
 
-    // Constructor con parámetros
     public Venta(Cliente cliente, Almacen almacen, double totalSinIva, double totalConIva, String numeroTicket, String estado, Date fecha) {
         this.cliente = cliente;
         this.almacen = almacen;

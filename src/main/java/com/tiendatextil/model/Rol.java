@@ -13,15 +13,15 @@ public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_rol")
-    private Long id;  // Este campo se generará automáticamente
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String nombre;
 
-    // Constructor por defecto
+
     public Rol() {}
 
-    // Constructor con parámetros
+
     public Rol(String nombre) {
         this.nombre = nombre;
     }

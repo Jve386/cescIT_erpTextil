@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface ArticuloRepository extends JpaRepository<Articulo, Long> {
 
-    // Define el método de búsqueda por nombre de producto, talla y color
+    // Buscar por nombre de producto, talla y color
     Optional<Articulo> findByProductoNombreAndTallaTallaAndColorColor(String productoNombre, String talla, String color);
 }
 
