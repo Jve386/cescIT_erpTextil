@@ -36,7 +36,7 @@ public class ArticuloService {
     // Actualizar un artículo
     public Articulo actualizarArticulo(Long id, Articulo articulo) {
         if (articuloRepository.existsById(id)) {
-            articulo.setIdArticulo(id); // Aseguramos que el ID no cambie
+            articulo.setId(id); // Aseguramos que el ID no cambie
             return articuloRepository.save(articulo);
         } else {
             throw new RuntimeException("Artículo no encontrado");

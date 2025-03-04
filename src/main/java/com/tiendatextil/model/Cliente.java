@@ -1,59 +1,36 @@
 package com.tiendatextil.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.*;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "clientes")
 public class Cliente {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_cliente")
     private Long id;
+
+    @Column(nullable = false)
     private String nombre;
-    private String correo;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
     private String telefono;
 
     // Constructor por defecto
     public Cliente() {}
 
     // Constructor con parámetros
-    public Cliente(String nombre, String correo, String telefono) {
+    public Cliente(String nombre, String email, String telefono) {
         this.nombre = nombre;
-        this.correo = correo;
-        this.telefono = telefono;
-    }
-
-    // Getters y setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setIdCliente(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
+        this.email = email;
         this.telefono = telefono;
     }
 }

@@ -1,15 +1,22 @@
 package com.tiendatextil.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.*;
+
+@Getter
+@Setter
 @Entity
-@Table(name = "colores")  // Nombre de la tabla en la base de datos
+@Table(name = "colores")
 public class Color {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Se agrega esta anotación para generar el ID automáticamente
+    @Column(name = "id_color")
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String color;
 
     // Constructor por defecto
@@ -17,23 +24,6 @@ public class Color {
 
     // Constructor con parámetros
     public Color(String color) {
-        this.color = color;
-    }
-
-    // Getters y setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setIdColor(Long id) {
-        this.id = id;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
         this.color = color;
     }
 }

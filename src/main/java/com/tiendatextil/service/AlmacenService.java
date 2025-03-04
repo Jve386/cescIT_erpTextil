@@ -36,7 +36,7 @@ public class AlmacenService {
     // Actualizar un almacén
     public Almacen actualizarAlmacen(Long id, Almacen almacen) {
         if (almacenRepository.existsById(id)) {
-            almacen.setIdAlmacen(id); // Aseguramos que el ID no cambie
+            almacen.setId(id); // Aseguramos que el ID no cambie
             return almacenRepository.save(almacen);
         } else {
             throw new RuntimeException("Almacén no encontrado");

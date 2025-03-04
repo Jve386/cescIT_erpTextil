@@ -5,6 +5,8 @@ import com.tiendatextil.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 public class DataLoader implements CommandLineRunner {
 
@@ -52,6 +54,15 @@ public class DataLoader implements CommandLineRunner {
     public void run(String... args) throws Exception {
         try {
             System.out.println("Iniciando carga de datos...");
+
+            // Limpiar datos anteriores
+            detalleVentaRepository.deleteAll();
+            ventaRepository.deleteAll();
+            stockRepository.deleteAll();
+            articuloRepository.deleteAll();
+            productoRepository.deleteAll();
+            categoriaRepository.deleteAll();
+            rolRepository.deleteAll();
 
             // Insertar datos de ejemplo en la tabla de roles
             if (rolRepository.count() == 0) {
@@ -159,20 +170,64 @@ public class DataLoader implements CommandLineRunner {
                 Cliente maria = clienteRepository.findByNombre("María López").orElseThrow();
                 Almacen tiendaCentral = almacenRepository.findByNombre("Tienda Central").orElseThrow();
 
-                Venta ventaJuan = new Venta(juan, tiendaCentral, 39.98, 47.98, "ticket001", "completada");
+                // Se agrega new Date() como séptimo parámetro para la fecha
+                Venta ventaJuan = new Venta(juan, tiendaCentral, 39.98, 47.98, "ticket001", "completada", new Date());
                 ventaRepository.save(ventaJuan);
 
-                Venta ventaMaria = new Venta(maria, tiendaCentral, 49.99, 59.99, "ticket002", "completada");
+                Venta ventaMaria = new Venta(maria, tiendaCentral, 49.99, 59.99, "ticket002", "completada", new Date());
                 ventaRepository.save(ventaMaria);
 
                 Articulo camisetaS = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor("Camiseta Básica", "S", "Rojo").orElseThrow();
                 Articulo pantalonL = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor("Pantalón Vaquero", "L", "Negro").orElseThrow();
                 Articulo zapatillasXL = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor("Zapatillas Deportivas", "XL", "Blanco").orElseThrow();
 
-                detalleVentaRepository.save(new DetalleVenta(ventaJuan, camisetaS, 2, 9.99, 19.98, 8.00, 23.98));
-                detalleVentaRepository.save(new DetalleVenta(ventaJuan, pantalonL, 1, 29.99, 29.99, 8.00, 35.98));
-                detalleVentaRepository.save(new DetalleVenta(ventaMaria, zapatillasXL, 1, 49.99, 49.99, 10.00, 59.99));
+                // Aquí calculamos precioSinIva, iva, y precioTotal
+                double precioSinIvaCamiseta = 9.99 * 2;
+                double ivaCamiseta = precioSinIvaCamiseta * 0.21; // Asumiendo IVA del 21%
+                double precioTotalCamiseta = precioSinIvaCamiseta + ivaCamiseta;
+
+                double precioSinIvaPantalon = 29.99 * 1;
+                double ivaPantalon = precioSinIvaPantalon * 0.21;
+                double precioTotalPantalon = precioSinIvaPantalon + ivaPantalon;
+
+                double precioSinIvaZapatillas = 49.99 * 1;
+                double ivaZapatillas = precioSinIvaZapatillas * 0.21;
+                double precioTotalZapatillas = precioSinIvaZapatillas + ivaZapatillas;
+
+                // Insertamos los detalles de venta usando los setters
+                DetalleVenta detalleVentaJuanCamiseta = new DetalleVenta();
+                detalleVentaJuanCamiseta.setVenta(ventaJuan);
+                detalleVentaJuanCamiseta.setArticulo(camisetaS);
+                detalleVentaJuanCamiseta.setCantidad(2);
+                detalleVentaJuanCamiseta.setPrecioUnitario(9.99);
+                detalleVentaJuanCamiseta.setPrecioSinIva(precioSinIvaCamiseta);
+                detalleVentaJuanCamiseta.setIva(ivaCamiseta);
+                detalleVentaJuanCamiseta.setPrecioTotal(precioTotalCamiseta);
+
+                DetalleVenta detalleVentaJuanPantalon = new DetalleVenta();
+                detalleVentaJuanPantalon.setVenta(ventaJuan);
+                detalleVentaJuanPantalon.setArticulo(pantalonL);
+                detalleVentaJuanPantalon.setCantidad(1);
+                detalleVentaJuanPantalon.setPrecioUnitario(29.99);
+                detalleVentaJuanPantalon.setPrecioSinIva(precioSinIvaPantalon);
+                detalleVentaJuanPantalon.setIva(ivaPantalon);
+                detalleVentaJuanPantalon.setPrecioTotal(precioTotalPantalon);
+
+                DetalleVenta detalleVentaMariaZapatillas = new DetalleVenta();
+                detalleVentaMariaZapatillas.setVenta(ventaMaria);
+                detalleVentaMariaZapatillas.setArticulo(zapatillasXL);
+                detalleVentaMariaZapatillas.setCantidad(1);
+                detalleVentaMariaZapatillas.setPrecioUnitario(49.99);
+                detalleVentaMariaZapatillas.setPrecioSinIva(precioSinIvaZapatillas);
+                detalleVentaMariaZapatillas.setIva(ivaZapatillas);
+                detalleVentaMariaZapatillas.setPrecioTotal(precioTotalZapatillas);
+
+                // Guardar los detalles de venta
+                detalleVentaRepository.save(detalleVentaJuanCamiseta);
+                detalleVentaRepository.save(detalleVentaJuanPantalon);
+                detalleVentaRepository.save(detalleVentaMariaZapatillas);
             }
+
             System.out.println("Carga de datos completada exitosamente.");
         } catch (Exception e) {
             System.err.println("Error al cargar datos: " + e.getMessage());

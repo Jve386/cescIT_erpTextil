@@ -1,15 +1,21 @@
 package com.tiendatextil.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import javax.persistence.*;
 
 @Entity
-@Table(name = "categorias")  // Nombre de la tabla en la base de datos
+@Table(name = "categorias")
+@Getter
+@Setter
 public class Categoria {
 
     @Id
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_categoria")
+    private Long id;  // Este campo se generará automáticamente
+
+    @Column(nullable = false, unique = true)
     private String nombre;
 
     // Constructor por defecto
@@ -17,23 +23,6 @@ public class Categoria {
 
     // Constructor con parámetros
     public Categoria(String nombre) {
-        this.nombre = nombre;
-    }
-
-    // Getters y setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setIdCategoria(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 }

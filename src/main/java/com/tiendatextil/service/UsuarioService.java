@@ -36,7 +36,7 @@ public class UsuarioService {
     // Actualizar un usuario
     public Usuario actualizarUsuario(Long id, Usuario usuario) {
         if (usuarioRepository.existsById(id)) {
-            usuario.setIdUsuario(id);  // Aseguramos que el id no cambie
+            usuario.setId(id);
             return usuarioRepository.save(usuario);
         } else {
             throw new RuntimeException("Usuario no encontrado");

@@ -1,91 +1,55 @@
 package com.tiendatextil.model;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.*;
+
+@Getter
+@Setter
 @Entity
+@Table(name = "detalle_venta")
 public class DetalleVenta {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_detalle_venta")
+    private Long id;
+
     @ManyToOne
-    @JoinColumn(name = "venta_id")
+    @JoinColumn(name = "id_venta", nullable = false)
     private Venta venta;
 
     @ManyToOne
-    @JoinColumn(name = "articulo_id")
+    @JoinColumn(name = "id_articulo", nullable = false)
     private Articulo articulo;
 
+    @Column(nullable = false)
     private int cantidad;
+
+    @Column(name = "precio_unitario", nullable = false)
     private double precioUnitario;
-    private double totalArticulo;
-    private double descuento;
-    private double totalConDescuento;
 
-    // Constructor adecuado
-    public DetalleVenta(Venta venta, Articulo articulo, int cantidad, double precioUnitario, double totalArticulo, double descuento, double totalConDescuento) {
+    @Column(name = "precio_sin_iva", nullable = false)
+    private double precioSinIva;
+
+    @Column(nullable = false)
+    private double iva;
+
+    @Column(name = "precio_total", nullable = false)
+    private double precioTotal;
+
+    // Constructor por defecto
+    public DetalleVenta() {}
+
+    // Constructor con parámetros
+    public DetalleVenta(Venta venta, Articulo articulo, int cantidad, double precioUnitario, double precioSinIva, double iva, double precioTotal) {
         this.venta = venta;
         this.articulo = articulo;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
-        this.totalArticulo = totalArticulo;
-        this.descuento = descuento;
-        this.totalConDescuento = totalConDescuento;
-    }
-
-    // Getters y setters
-    public Venta getVenta() {
-        return venta;
-    }
-
-    public void setVenta(Venta venta) {
-        this.venta = venta;
-    }
-
-    public Articulo getArticulo() {
-        return articulo;
-    }
-
-    public void setArticulo(Articulo articulo) {
-        this.articulo = articulo;
-    }
-
-    public int getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-    }
-
-    public double getPrecioUnitario() {
-        return precioUnitario;
-    }
-
-    public void setPrecioUnitario(double precioUnitario) {
-        this.precioUnitario = precioUnitario;
-    }
-
-    public double getTotalArticulo() {
-        return totalArticulo;
-    }
-
-    public void setTotalArticulo(double totalArticulo) {
-        this.totalArticulo = totalArticulo;
-    }
-
-    public double getDescuento() {
-        return descuento;
-    }
-
-    public void setDescuento(double descuento) {
-        this.descuento = descuento;
-    }
-
-    public double getTotalConDescuento() {
-        return totalConDescuento;
-    }
-
-    public void setTotalConDescuento(double totalConDescuento) {
-        this.totalConDescuento = totalConDescuento;
+        this.precioSinIva = precioSinIva;
+        this.iva = iva;
+        this.precioTotal = precioTotal;
     }
 }

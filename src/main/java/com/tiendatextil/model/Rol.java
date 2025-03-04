@@ -2,20 +2,26 @@ package com.tiendatextil.model;
 
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@Table(name = "roles")
 @Getter
 @Setter
 public class Rol {
 
     @Id
-    private Long idRol;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_rol")
+    private Long id;  // Este campo se generará automáticamente
+
+    @Column(nullable = false, unique = true)
     private String nombre;
 
-    // Constructor
+    // Constructor por defecto
+    public Rol() {}
+
+    // Constructor con parámetros
     public Rol(String nombre) {
         this.nombre = nombre;
     }

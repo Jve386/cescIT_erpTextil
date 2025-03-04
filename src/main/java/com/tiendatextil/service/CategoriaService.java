@@ -36,7 +36,7 @@ public class CategoriaService {
     // Actualizar una categoría
     public Categoria actualizarCategoria(Long id, Categoria categoria) {
         if (categoriaRepository.existsById(id)) {
-            categoria.setIdCategoria(id); // Aseguramos que el ID no cambie
+            categoria.setId(id); // Aseguramos que el ID no cambie
             return categoriaRepository.save(categoria);
         } else {
             throw new RuntimeException("Categoría no encontrada");

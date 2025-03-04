@@ -36,7 +36,7 @@ public class ClienteService {
     // Actualizar un cliente
     public Cliente actualizarCliente(Long id, Cliente cliente) {
         if (clienteRepository.existsById(id)) {
-            cliente.setIdCliente(id); // Aseguramos que el ID no cambie
+            cliente.setId(id); // Aseguramos que el ID no cambie
             return clienteRepository.save(cliente);
         } else {
             throw new RuntimeException("Cliente no encontrado");

@@ -36,7 +36,7 @@ public class ProductoService {
     // Actualizar un producto
     public Producto actualizarProducto(Long id, Producto producto) {
         if (productoRepository.existsById(id)) {
-            producto.setIdProducto(id); // Aseguramos que el ID no cambie
+            producto.setId(id); // Aseguramos que el ID no cambie
             return productoRepository.save(producto);
         } else {
             throw new RuntimeException("Producto no encontrado");

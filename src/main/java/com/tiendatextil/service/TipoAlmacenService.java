@@ -36,7 +36,7 @@ public class TipoAlmacenService {
     // Actualizar un tipo de almacén
     public TipoAlmacen actualizarTipoAlmacen(Long id, TipoAlmacen tipoAlmacen) {
         if (tipoAlmacenRepository.existsById(id)) {
-            tipoAlmacen.setIdAlmacen(id);  // Aseguramos que el ID no cambie
+            tipoAlmacen.setId(id);  // Aseguramos que el ID no cambie
             return tipoAlmacenRepository.save(tipoAlmacen);
         } else {
             throw new RuntimeException("Tipo de almacén no encontrado");

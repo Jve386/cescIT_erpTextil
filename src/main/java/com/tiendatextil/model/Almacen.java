@@ -1,20 +1,29 @@
 package com.tiendatextil.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.*;
+
+@Getter
+@Setter
 @Entity
-@Table(name = "almacenes")  // Nombre de la tabla en la base de datos
+@Table(name = "almacenes")
 public class Almacen {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_almacen")
     private Long id;
+
+    @Column(nullable = false)
     private String nombre;
+
+    @Column(nullable = false)
     private String direccion;
 
     @ManyToOne
+    @JoinColumn(name = "id_tipo_almacen", nullable = false)
     private TipoAlmacen tipoAlmacen;
 
     // Constructor por defecto
@@ -24,39 +33,6 @@ public class Almacen {
     public Almacen(String nombre, String direccion, TipoAlmacen tipoAlmacen) {
         this.nombre = nombre;
         this.direccion = direccion;
-        this.tipoAlmacen = tipoAlmacen;
-    }
-
-    // Getters y setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setIdAlmacen(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public TipoAlmacen getTipoAlmacen() {
-        return tipoAlmacen;
-    }
-
-    public void setTipoAlmacen(TipoAlmacen tipoAlmacen) {
         this.tipoAlmacen = tipoAlmacen;
     }
 }
