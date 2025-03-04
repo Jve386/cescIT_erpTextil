@@ -1,56 +1,37 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+@Getter
+@Setter
 @Entity
-@Table(name = "stock")
 public class Stock {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idStock;
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "id_articulo", nullable = false)
+    @JoinColumn(name = "articulo_id")
     private Articulo articulo;
 
     @ManyToOne
-    @JoinColumn(name = "id_almacen", nullable = false)
+    @JoinColumn(name = "almacen_id")
     private Almacen almacen;
 
-    @Column(nullable = false)
-    private Integer cantidad;
+    private int cantidad;
 
-    // Getters y setters
-    public Long getIdStock() {
-        return idStock;
-    }
-
-    public void setIdStock(Long idStock) {
-        this.idStock = idStock;
-    }
-
-    public Articulo getArticulo() {
-        return articulo;
-    }
-
-    public void setArticulo(Articulo articulo) {
+    public Stock(Articulo articulo, Almacen almacen, int cantidad) {
         this.articulo = articulo;
-    }
-
-    public Almacen getAlmacen() {
-        return almacen;
-    }
-
-    public void setAlmacen(Almacen almacen) {
         this.almacen = almacen;
-    }
-
-    public Integer getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
     }
 }

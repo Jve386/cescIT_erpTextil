@@ -1,101 +1,54 @@
 package com.tiendatextil.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.Date;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "ventas")
 public class Venta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idVenta;
+    @Column(name = "id_venta")
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente")
     private Cliente cliente;
 
     @ManyToOne
-    @JoinColumn(name = "id_almacen", nullable = false)
+    @JoinColumn(name = "id_almacen")
     private Almacen almacen;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fecha = new Date();
+    @Column(name = "total_sin_iva", nullable = false)
+    private double totalSinIva;
 
-    @Column(nullable = false)
-    private Double totalSinIva;
+    @Column(name = "total_con_iva", nullable = false)
+    private double totalConIva;
 
-    @Column(nullable = false)
-    private Double totalConIva;
-
-    @Column(nullable = false, unique = true)
+    @Column(name = "numero_ticket", unique = true, nullable = false)
     private String numeroTicket;
 
-    @Column(nullable = false)
-    private String estado = "completada";
+    @Column(name = "estado", nullable = false)
+    private String estado;
 
-    // Getters y setters
-    public Long getIdVenta() {
-        return idVenta;
-    }
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fecha;
 
-    public void setIdVenta(Long idVenta) {
-        this.idVenta = idVenta;
-    }
+    public Venta() {}
 
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
+    public Venta(Cliente cliente, Almacen almacen, double totalSinIva, double totalConIva, String numeroTicket, String estado, Date fecha) {
         this.cliente = cliente;
-    }
-
-    public Almacen getAlmacen() {
-        return almacen;
-    }
-
-    public void setAlmacen(Almacen almacen) {
         this.almacen = almacen;
-    }
-
-    public Date getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
-    }
-
-    public Double getTotalSinIva() {
-        return totalSinIva;
-    }
-
-    public void setTotalSinIva(Double totalSinIva) {
         this.totalSinIva = totalSinIva;
-    }
-
-    public Double getTotalConIva() {
-        return totalConIva;
-    }
-
-    public void setTotalConIva(Double totalConIva) {
         this.totalConIva = totalConIva;
-    }
-
-    public String getNumeroTicket() {
-        return numeroTicket;
-    }
-
-    public void setNumeroTicket(String numeroTicket) {
         this.numeroTicket = numeroTicket;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
         this.estado = estado;
+        this.fecha = fecha;
     }
 }

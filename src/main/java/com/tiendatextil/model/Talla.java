@@ -1,32 +1,27 @@
 package com.tiendatextil.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "tallas")
 public class Talla {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idTalla;
+    @Column(name = "id_talla")
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String talla;
 
-    // Getters y setters
-    public Long getIdTalla() {
-        return idTalla;
-    }
+    public Talla() {}
 
-    public void setIdTalla(Long idTalla) {
-        this.idTalla = idTalla;
-    }
-
-    public String getTalla() {
-        return talla;
-    }
-
-    public void setTalla(String talla) {
+    public Talla(String talla) {
         this.talla = talla;
     }
 }

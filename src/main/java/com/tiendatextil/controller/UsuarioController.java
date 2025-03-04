@@ -21,6 +21,19 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+    // Obtener todos los usuarios
+    @GetMapping
+    public List<Usuario> obtenerUsuarios() {
+        return usuarioService.obtenerUsuarios();
+    }
+
+    // Obtener un usuario por id
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
+        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorId(id);
+        return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     // Crear un nuevo usuario
     @PostMapping
     public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
@@ -28,39 +41,25 @@ public class UsuarioController {
         return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
     }
 
-    // Obtener todos los usuarios
-    @GetMapping
-    public ResponseEntity<List<Usuario>> obtenerUsuarios() {
-        List<Usuario> usuarios = usuarioService.obtenerUsuarios();
-        return new ResponseEntity<>(usuarios, HttpStatus.OK);
-    }
-
-    // Obtener un usuario por su ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable("id") Long id) {
-        Optional<Usuario> usuario = usuarioService.obtenerUsuarioPorId(id);
-        return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     // Actualizar un usuario
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> actualizarUsuario(@PathVariable("id") Long id, @RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
         try {
             Usuario usuarioActualizado = usuarioService.actualizarUsuario(id, usuario);
-            return new ResponseEntity<>(usuarioActualizado, HttpStatus.OK);
+            return ResponseEntity.ok(usuarioActualizado);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 
     // Eliminar un usuario
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
         try {
             usuarioService.eliminarUsuario(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 }

@@ -1,14 +1,20 @@
 package com.tiendatextil.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "clientes")
 public class Cliente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idCliente;
+    @Column(name = "id_cliente")
+    private Long id;
 
     @Column(nullable = false)
     private String nombre;
@@ -18,36 +24,12 @@ public class Cliente {
 
     private String telefono;
 
-    // Getters y setters
-    public Long getIdCliente() {
-        return idCliente;
-    }
 
-    public void setIdCliente(Long idCliente) {
-        this.idCliente = idCliente;
-    }
+    public Cliente() {}
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
+    public Cliente(String nombre, String email, String telefono) {
         this.nombre = nombre;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 }

@@ -4,7 +4,14 @@ import com.tiendatextil.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    // Aquí puedes añadir consultas personalizadas si es necesario
+    // Buscar un usuario por su email
+    Optional<Usuario> findByEmail(String email);
+
+    // Buscar todos los usuarios con un rol específico
+    Optional<List<Usuario>> findByRol_Id(Long id);
 }

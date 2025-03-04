@@ -1,14 +1,20 @@
 package com.tiendatextil.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Entity
-@Table(name = "detalle_ventas")
+@Table(name = "detalle_venta")
 public class DetalleVenta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDetalleVenta;
+    @Column(name = "id_detalle_venta")
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "id_venta", nullable = false)
@@ -19,82 +25,31 @@ public class DetalleVenta {
     private Articulo articulo;
 
     @Column(nullable = false)
-    private Integer cantidad;
+    private int cantidad;
+
+    @Column(name = "precio_unitario", nullable = false)
+    private double precioUnitario;
+
+    @Column(name = "precio_sin_iva", nullable = false)
+    private double precioSinIva;
 
     @Column(nullable = false)
-    private Double precioUnitario;
+    private double iva;
 
-    @Column(nullable = false)
-    private Double precioSinIva;
+    @Column(name = "precio_total", nullable = false)
+    private double precioTotal;
 
-    @Column(nullable = false)
-    private Double iva;
 
-    @Column(nullable = false)
-    private Double precioTotal;
+    public DetalleVenta() {}
 
-    // Getters y setters
-    public Long getIdDetalleVenta() {
-        return idDetalleVenta;
-    }
 
-    public void setIdDetalleVenta(Long idDetalleVenta) {
-        this.idDetalleVenta = idDetalleVenta;
-    }
-
-    public Venta getVenta() {
-        return venta;
-    }
-
-    public void setVenta(Venta venta) {
+    public DetalleVenta(Venta venta, Articulo articulo, int cantidad, double precioUnitario, double precioSinIva, double iva, double precioTotal) {
         this.venta = venta;
-    }
-
-    public Articulo getArticulo() {
-        return articulo;
-    }
-
-    public void setArticulo(Articulo articulo) {
         this.articulo = articulo;
-    }
-
-    public Integer getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
-    }
-
-    public Double getPrecioUnitario() {
-        return precioUnitario;
-    }
-
-    public void setPrecioUnitario(Double precioUnitario) {
         this.precioUnitario = precioUnitario;
-    }
-
-    public Double getPrecioSinIva() {
-        return precioSinIva;
-    }
-
-    public void setPrecioSinIva(Double precioSinIva) {
         this.precioSinIva = precioSinIva;
-    }
-
-    public Double getIva() {
-        return iva;
-    }
-
-    public void setIva(Double iva) {
         this.iva = iva;
-    }
-
-    public Double getPrecioTotal() {
-        return precioTotal;
-    }
-
-    public void setPrecioTotal(Double precioTotal) {
         this.precioTotal = precioTotal;
     }
 }

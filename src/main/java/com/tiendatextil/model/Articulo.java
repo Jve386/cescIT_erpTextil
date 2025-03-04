@@ -1,14 +1,21 @@
 package com.tiendatextil.model;
 
-import javax.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.*;
+import java.util.List;
+
+@Getter
+@Setter
 @Entity
-@Table(name = "articulo")
+@Table(name = "articulos")
 public class Articulo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idArticulo;
+    @Column(name = "id_articulo")
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "id_producto", nullable = false)
@@ -22,47 +29,16 @@ public class Articulo {
     @JoinColumn(name = "id_color", nullable = false)
     private Color color;
 
-    @Column
-    private Double precioCoste;
+    @Column(name = "precio_coste")
+    private double precio;
 
-    // Getters y setters
-    public Long getIdArticulo() {
-        return idArticulo;
-    }
 
-    public void setIdArticulo(Long idArticulo) {
-        this.idArticulo = idArticulo;
-    }
+    public Articulo() {}
 
-    public Producto getProducto() {
-        return producto;
-    }
-
-    public void setProducto(Producto producto) {
+    public Articulo(Producto producto, Talla talla, Color color, double precio) {
         this.producto = producto;
-    }
-
-    public Talla getTalla() {
-        return talla;
-    }
-
-    public void setTalla(Talla talla) {
         this.talla = talla;
-    }
-
-    public Color getColor() {
-        return color;
-    }
-
-    public void setColor(Color color) {
         this.color = color;
-    }
-
-    public Double getPrecioCoste() {
-        return precioCoste;
-    }
-
-    public void setPrecioCoste(Double precioCoste) {
-        this.precioCoste = precioCoste;
+        this.precio = precio;
     }
 }

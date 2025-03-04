@@ -1,32 +1,27 @@
 package com.tiendatextil.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "categorias")
+@Getter
+@Setter
 public class Categoria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idCategoria;
+    @Column(name = "id_categoria")
+    private Long id;  // Este campo se generará automáticamente
 
     @Column(nullable = false, unique = true)
     private String nombre;
 
-    // Getters y setters
-    public Long getIdCategoria() {
-        return idCategoria;
-    }
+    public Categoria() {}
 
-    public void setIdCategoria(Long idCategoria) {
-        this.idCategoria = idCategoria;
-    }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
+    public Categoria(String nombre) {
         this.nombre = nombre;
     }
 }

@@ -1,14 +1,20 @@
 package com.tiendatextil.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "almacenes")
 public class Almacen {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idAlmacen;
+    @Column(name = "id_almacen")
+    private Long id;
 
     @Column(nullable = false)
     private String nombre;
@@ -20,36 +26,13 @@ public class Almacen {
     @JoinColumn(name = "id_tipo_almacen", nullable = false)
     private TipoAlmacen tipoAlmacen;
 
-    // Getters y setters
-    public Long getIdAlmacen() {
-        return idAlmacen;
-    }
 
-    public void setIdAlmacen(Long idAlmacen) {
-        this.idAlmacen = idAlmacen;
-    }
+    public Almacen() {}
 
-    public String getNombre() {
-        return nombre;
-    }
 
-    public void setNombre(String nombre) {
+    public Almacen(String nombre, String direccion, TipoAlmacen tipoAlmacen) {
         this.nombre = nombre;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
         this.direccion = direccion;
-    }
-
-    public TipoAlmacen getTipoAlmacen() {
-        return tipoAlmacen;
-    }
-
-    public void setTipoAlmacen(TipoAlmacen tipoAlmacen) {
         this.tipoAlmacen = tipoAlmacen;
     }
 }
