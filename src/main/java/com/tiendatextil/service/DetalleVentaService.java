@@ -1,3 +1,4 @@
+// DetalleVentaService
 package com.tiendatextil.service;
 
 import com.tiendatextil.model.DetalleVenta;
@@ -20,6 +21,8 @@ public class DetalleVentaService {
 
     // Crear un nuevo detalle de venta
     public DetalleVenta crearDetalleVenta(DetalleVenta detalleVenta) {
+        // Calcular los totales (sin IVA, IVA, precio total)
+        calcularTotales(detalleVenta);
         return detalleVentaRepository.save(detalleVenta);
     }
 
@@ -36,6 +39,8 @@ public class DetalleVentaService {
     // Actualizar un detalle de venta
     public DetalleVenta actualizarDetalleVenta(Long id, DetalleVenta detalleVenta) {
         if (detalleVentaRepository.existsById(id)) {
+            // Recalcular los totales si la cantidad cambia
+            calcularTotales(detalleVenta);
             return detalleVentaRepository.save(detalleVenta);
         } else {
             throw new RuntimeException("Detalle de venta no encontrado");
@@ -49,5 +54,22 @@ public class DetalleVentaService {
         } else {
             throw new RuntimeException("Detalle de venta no encontrado");
         }
+    }
+
+    // Metodo para calcular los totales (precio sin IVA, IVA, precio total)
+    private void calcularTotales(DetalleVenta detalleVenta) {
+        // Calcular precio sin IVA
+        double precioSinIva = detalleVenta.getPrecioUnitario() * detalleVenta.getCantidad();
+
+        // Calcular IVA (supuesto 21%)
+        double iva = precioSinIva * 0.21;
+
+        // Calcular precio total
+        double precioTotal = precioSinIva + iva;
+
+        // Asignar los valores calculados al detalle de venta
+        detalleVenta.setPrecioSinIva(precioSinIva);
+        detalleVenta.setIva(iva);
+        detalleVenta.setPrecioTotal(precioTotal);
     }
 }
