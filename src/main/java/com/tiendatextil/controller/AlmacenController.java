@@ -37,6 +37,9 @@ public class AlmacenController {
     // Crear un nuevo almacén
     @PostMapping
     public ResponseEntity<Almacen> crearAlmacen(@RequestBody Almacen almacen) {
+        if (almacen.getTipoAlmacen() == null || (!almacen.getTipoAlmacen().equals("Tienda") && !almacen.getTipoAlmacen().equals("Almacén"))) {
+            return ResponseEntity.badRequest().build();
+        }
         Almacen nuevoAlmacen = almacenService.crearAlmacen(almacen);
         return new ResponseEntity<>(nuevoAlmacen, HttpStatus.CREATED);
     }
@@ -45,6 +48,9 @@ public class AlmacenController {
     @PutMapping("/{id}")
     public ResponseEntity<Almacen> actualizarAlmacen(@PathVariable Long id, @RequestBody Almacen almacen) {
         try {
+            if (almacen.getTipoAlmacen() == null || (!almacen.getTipoAlmacen().equals("Tienda") && !almacen.getTipoAlmacen().equals("Almacén"))) {
+                return ResponseEntity.badRequest().build();
+            }
             Almacen almacenActualizado = almacenService.actualizarAlmacen(id, almacen);
             return ResponseEntity.ok(almacenActualizado);
         } catch (RuntimeException e) {

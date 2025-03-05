@@ -19,7 +19,6 @@ public class DataLoader implements CommandLineRunner {
     private final ProductoRepository productoRepository;
     private final TallaRepository tallaRepository;
     private final ColorRepository colorRepository;
-    private final TipoAlmacenRepository tipoAlmacenRepository;
     private final AlmacenRepository almacenRepository;
     private final ClienteRepository clienteRepository;
     private final ArticuloRepository articuloRepository;
@@ -33,7 +32,6 @@ public class DataLoader implements CommandLineRunner {
             ProductoRepository productoRepository,
             TallaRepository tallaRepository,
             ColorRepository colorRepository,
-            TipoAlmacenRepository tipoAlmacenRepository,
             AlmacenRepository almacenRepository,
             ClienteRepository clienteRepository,
             ArticuloRepository articuloRepository,
@@ -45,7 +43,6 @@ public class DataLoader implements CommandLineRunner {
         this.productoRepository = productoRepository;
         this.tallaRepository = tallaRepository;
         this.colorRepository = colorRepository;
-        this.tipoAlmacenRepository = tipoAlmacenRepository;
         this.almacenRepository = almacenRepository;
         this.clienteRepository = clienteRepository;
         this.articuloRepository = articuloRepository;
@@ -98,21 +95,11 @@ public class DataLoader implements CommandLineRunner {
                 saveIfNotExists(colorRepository, new Color("Blanco"), c -> c.getColor().equals("Blanco"));
             }
 
-            // Insertar datos de ejemplo en la tabla de tipo de almacenes
-            if (tipoAlmacenRepository.count() == 0) {
-                saveIfNotExists(tipoAlmacenRepository, new TipoAlmacen("Tienda"), t -> t.getTipo().equals("Tienda"));
-                saveIfNotExists(tipoAlmacenRepository, new TipoAlmacen("Almacén"), t -> t.getTipo().equals("Almacén"));
-            }
-
             // Insertar almacenes
             if (almacenRepository.count() == 0) {
-                TipoAlmacen tienda = tipoAlmacenRepository.findByTipo("Tienda").orElseThrow();
-                TipoAlmacen almacen = tipoAlmacenRepository.findByTipo("Almacén").orElseThrow();
-
-                saveIfNotExists(almacenRepository, new Almacen("Tienda Central", "Calle Principal 123", tienda), a -> a.getNombre().equals("Tienda Central"));
-                saveIfNotExists(almacenRepository, new Almacen("Almacén Norte", "Avenida Industrial 456", almacen), a -> a.getNombre().equals("Almacén Norte"));
+                saveIfNotExists(almacenRepository, new Almacen("Tienda Central", "Calle Principal 123", "Tienda"), a -> a.getNombre().equals("Tienda Central"));
+                saveIfNotExists(almacenRepository, new Almacen("Almacén Norte", "Avenida Industrial 456", "Almacén"), a -> a.getNombre().equals("Almacén Norte"));
             }
-
             // Insertar clientes
             if (clienteRepository.count() == 0) {
                 saveIfNotExists(clienteRepository, new Cliente("Juan Pérez", "juan@example.com", "123456789"), c -> c.getNombre().equals("Juan Pérez"));
