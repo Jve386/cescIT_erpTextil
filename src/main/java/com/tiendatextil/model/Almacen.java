@@ -22,15 +22,15 @@ public class Almacen {
     @Column(nullable = false)
     private String direccion;
 
-    @ManyToOne
-    @JoinColumn(name = "id_tipo_almacen", nullable = false)
-    private TipoAlmacen tipoAlmacen;
+    // Ahora tipoAlmacen es simplemente un String, no es una relación con otra entidad.
+    @Column(nullable = false)
+    private String tipoAlmacen;
 
-
+    // Constructor sin parámetros
     public Almacen() {}
 
-
-    public Almacen(String nombre, String direccion, TipoAlmacen tipoAlmacen) {
+    // Constructor con parámetros
+    public Almacen(String nombre, String direccion, String tipoAlmacen) {
         this.nombre = nombre;
         this.direccion = direccion;
         this.tipoAlmacen = tipoAlmacen;

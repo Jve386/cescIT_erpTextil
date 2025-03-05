@@ -13,5 +13,5 @@ public interface AlmacenRepository extends JpaRepository<Almacen, Long> {
     Optional<Almacen> findByNombre(String nombre);
 
     // Buscar almacenes por tipo
-    List<Almacen> findByTipoAlmacenId(Long tipoAlmacenId);
+    List<Almacen> findByTipoAlmacen(String tipoAlmacen);
 }

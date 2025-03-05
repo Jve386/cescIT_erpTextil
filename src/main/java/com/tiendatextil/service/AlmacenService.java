@@ -20,6 +20,10 @@ public class AlmacenService {
 
     // Crear un nuevo almacén
     public Almacen crearAlmacen(Almacen almacen) {
+        // Validación para asegurar que el tipo de almacén sea válido
+        if (almacen.getTipoAlmacen() == null || (!almacen.getTipoAlmacen().equals("Tienda") && !almacen.getTipoAlmacen().equals("Almacén"))) {
+            throw new IllegalArgumentException("Tipo de almacén inválido");
+        }
         return almacenRepository.save(almacen);
     }
 
@@ -35,8 +39,12 @@ public class AlmacenService {
 
     // Actualizar un almacén
     public Almacen actualizarAlmacen(Long id, Almacen almacen) {
+        if (almacen.getTipoAlmacen() == null || (!almacen.getTipoAlmacen().equals("Tienda") && !almacen.getTipoAlmacen().equals("Almacén"))) {
+            throw new IllegalArgumentException("Tipo de almacén inválido");
+        }
+
         if (almacenRepository.existsById(id)) {
-            almacen.setId(id); // Aseguramos que el ID no cambie
+            almacen.setId(id);
             return almacenRepository.save(almacen);
         } else {
             throw new RuntimeException("Almacén no encontrado");
