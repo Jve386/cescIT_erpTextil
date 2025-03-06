@@ -1,11 +1,24 @@
 meta {
   name: Post productos
   type: http
-  seq: 3
+  seq: 4
 }
 
 post {
-  url: {{BACKEND_URL}}/post/productos
-  body: none
+  url: {{BACKEND_URL}}/api/productos
+  body: json
   auth: none
+}
+
+body:json {
+    {
+      "id": "",
+      "nombre": "Zapatillas algodón",
+      "descripcion": "Zapatillas de andar por casa",
+      "precioBase": 9.99,
+      "categoria": {
+        "id": 3,
+        "nombre": ""
+      }
+    }
 }

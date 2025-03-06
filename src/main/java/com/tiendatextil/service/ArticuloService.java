@@ -35,12 +35,15 @@ public class ArticuloService {
 
     // Actualizar un artículo
     public Articulo actualizarArticulo(Long id, Articulo articulo) {
-        if (articuloRepository.existsById(id)) {
-            articulo.setId(id); // Aseguramos que el ID no cambie
-            return articuloRepository.save(articulo);
-        } else {
-            throw new RuntimeException("Artículo no encontrado");
-        }
+        return articuloRepository.findById(id)
+                .map(articuloExistente -> {
+                    articuloExistente.setProducto(articulo.getProducto());
+                    articuloExistente.setPrecio(articulo.getPrecio());
+                    articuloExistente.setTalla(articulo.getTalla());
+                    articuloExistente.setColor(articulo.getColor());
+                    return articuloRepository.save(articuloExistente);
+                })
+                .orElseThrow(() -> new RuntimeException("Artículo no encontrado"));
     }
 
     // Eliminar un artículo
