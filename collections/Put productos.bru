@@ -1,0 +1,36 @@
+meta {
+  name: Put productos
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{BACKEND_URL}}/api/articulos/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id": 1,
+    "producto": {
+      "id": 1,
+      "nombre": "Camiseta Básica",
+      "descripcion": "Camiseta de algodón",
+      "precioBase": 9.99,
+      "categoria": {
+        "id": 1,
+        "nombre": "Camisetas"
+      }
+    },
+    "talla": {
+      "id": 1,
+      "talla": "S"
+    },
+    "color": {
+      "id": 2,
+      "color": ""
+    },
+    "precio": 5
+  }
+}
