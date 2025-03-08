@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+# Servicio para la base de datos
   crud-db:
     image: postgres:13
     container_name: crud-db
@@ -15,13 +16,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d cruddb"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d cruddb" ]
       interval: 5s
       timeout: 5s
       retries: 5
     env_file:
       - .env
 
+# Servicio para el backend (Spring Boot)
   app:
     build:
       context: .
@@ -40,6 +42,23 @@ services:
         condition: service_healthy
     env_file:
       - .env
+
+# Servicio para el frontend (Quasar)
+  front:
+    build:
+      context: ./quasar-project
+      dockerfile: Dockerfile
+    container_name: quasar-app
+    ports:
+      - "8081:8081"
+    environment:
+      - VUE_APP_API_URL=http://localhost:8080/api
+    networks:
+      - crud-network
+    volumes:
+      - ./quasar-project:/app  
+      - /app/node_modules 
+    command: ["quasar", "dev", "--hostname", "0.0.0.0", "--port", "8081"] 
 
 networks:
   crud-network:
