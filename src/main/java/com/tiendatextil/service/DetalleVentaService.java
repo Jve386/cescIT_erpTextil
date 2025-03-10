@@ -1,6 +1,6 @@
-// DetalleVentaService
 package com.tiendatextil.service;
 
+import com.tiendatextil.dto.DetalleVentaDTO;
 import com.tiendatextil.model.DetalleVenta;
 import com.tiendatextil.repository.DetalleVentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DetalleVentaService {
@@ -20,31 +21,38 @@ public class DetalleVentaService {
     }
 
     // Crear un nuevo detalle de venta
-    public DetalleVenta crearDetalleVenta(DetalleVenta detalleVenta) {
-        // Calcular los totales (sin IVA, IVA, precio total)
-        calcularTotales(detalleVenta);
-        return detalleVentaRepository.save(detalleVenta);
+    public DetalleVentaDTO crearDetalleVenta(DetalleVentaDTO detalleVentaDTO) {
+        DetalleVenta detalleVenta = convertirADetalleVenta(detalleVentaDTO);
+        DetalleVenta detalleVentaGuardado = detalleVentaRepository.save(detalleVenta);
+        return convertirADetalleVentaDTO(detalleVentaGuardado);
     }
 
     // Obtener todos los detalles de venta
-    public List<DetalleVenta> obtenerDetallesVenta() {
-        return detalleVentaRepository.findAll();
+    public List<DetalleVentaDTO> obtenerDetallesVenta() {
+        List<DetalleVenta> detallesVenta = detalleVentaRepository.findAll();
+        return detallesVenta.stream()
+                .map(this::convertirADetalleVentaDTO)
+                .collect(Collectors.toList());
     }
 
     // Obtener un detalle de venta por su ID
-    public Optional<DetalleVenta> obtenerDetalleVentaPorId(Long id) {
-        return detalleVentaRepository.findById(id);
+    public Optional<DetalleVentaDTO> obtenerDetalleVentaPorId(Long id) {
+        return detalleVentaRepository.findById(id).map(this::convertirADetalleVentaDTO);
     }
 
     // Actualizar un detalle de venta
-    public DetalleVenta actualizarDetalleVenta(Long id, DetalleVenta detalleVenta) {
-        if (detalleVentaRepository.existsById(id)) {
-            // Recalcular los totales si la cantidad cambia
-            calcularTotales(detalleVenta);
-            return detalleVentaRepository.save(detalleVenta);
-        } else {
-            throw new RuntimeException("Detalle de venta no encontrado");
-        }
+    public DetalleVentaDTO actualizarDetalleVenta(Long id, DetalleVentaDTO detalleVentaDTO) {
+        return detalleVentaRepository.findById(id)
+                .map(detalleExistente -> {
+                    detalleExistente.setCantidad(detalleVentaDTO.getCantidad());
+                    detalleExistente.setPrecioUnitario(detalleVentaDTO.getPrecioUnitario());
+                    detalleExistente.setPrecioSinIva(detalleVentaDTO.getPrecioSinIva());
+                    detalleExistente.setIva(detalleVentaDTO.getIva());
+                    detalleExistente.setPrecioTotal(detalleVentaDTO.getPrecioTotal());
+                    DetalleVenta detalleVentaActualizado = detalleVentaRepository.save(detalleExistente);
+                    return convertirADetalleVentaDTO(detalleVentaActualizado);
+                })
+                .orElseThrow(() -> new RuntimeException("Detalle de venta no encontrado"));
     }
 
     // Eliminar un detalle de venta
@@ -56,20 +64,31 @@ public class DetalleVentaService {
         }
     }
 
-    // Metodo para calcular los totales (precio sin IVA, IVA, precio total)
-    private void calcularTotales(DetalleVenta detalleVenta) {
-        // Calcular precio sin IVA
-        double precioSinIva = detalleVenta.getPrecioUnitario() * detalleVenta.getCantidad();
+    // Métodos de conversión entre DTO y entidad
+    private DetalleVentaDTO convertirADetalleVentaDTO(DetalleVenta detalleVenta) {
+        return new DetalleVentaDTO(
+                detalleVenta.getId(),
+                detalleVenta.getVenta().getId(),
+                detalleVenta.getArticulo().getId(),
+                detalleVenta.getCantidad(),
+                detalleVenta.getPrecioUnitario(),
+                detalleVenta.getPrecioSinIva(),
+                detalleVenta.getIva(),
+                detalleVenta.getPrecioTotal()
+        );
+    }
 
-        // Calcular IVA (supuesto 21%)
-        double iva = precioSinIva * 0.21;
-
-        // Calcular precio total
-        double precioTotal = precioSinIva + iva;
-
-        // Asignar los valores calculados al detalle de venta
-        detalleVenta.setPrecioSinIva(precioSinIva);
-        detalleVenta.setIva(iva);
-        detalleVenta.setPrecioTotal(precioTotal);
+    private DetalleVenta convertirADetalleVenta(DetalleVentaDTO detalleVentaDTO) {
+        // Asumiendo que ya existen métodos para obtener Venta y Articulo por sus ids
+        // Esto podría requerir que inyectes las clases de Venta y Articulo en este servicio o que los pasemos directamente.
+        return new DetalleVenta(
+                null,  // Venta y Articulo se deben obtener de su respectivo servicio o repositorio
+                null,  // Este paso puede requerir más lógica dependiendo de tu implementación
+                detalleVentaDTO.getCantidad(),
+                detalleVentaDTO.getPrecioUnitario(),
+                detalleVentaDTO.getPrecioSinIva(),
+                detalleVentaDTO.getIva(),
+                detalleVentaDTO.getPrecioTotal()
+        );
     }
 }

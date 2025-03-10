@@ -1,6 +1,6 @@
 package com.tiendatextil.controller;
 
-import com.tiendatextil.model.Color;
+import com.tiendatextil.dto.ColorDTO;
 import com.tiendatextil.service.ColorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,29 +23,29 @@ public class ColorController {
 
     // Obtener todos los colores
     @GetMapping
-    public List<Color> obtenerColores() {
+    public List<ColorDTO> obtenerColores() {
         return colorService.obtenerColores();
     }
 
     // Obtener un color por id
     @GetMapping("/{id}")
-    public ResponseEntity<Color> obtenerColorPorId(@PathVariable Long id) {
-        Optional<Color> color = colorService.obtenerColorPorId(id);
-        return color.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ColorDTO> obtenerColorPorId(@PathVariable Long id) {
+        Optional<ColorDTO> colorDTO = colorService.obtenerColorPorId(id);
+        return colorDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Crear un nuevo color
     @PostMapping
-    public ResponseEntity<Color> crearColor(@RequestBody Color color) {
-        Color nuevoColor = colorService.crearColor(color);
-        return new ResponseEntity<>(nuevoColor, HttpStatus.CREATED);
+    public ResponseEntity<ColorDTO> crearColor(@RequestBody ColorDTO colorDTO) {
+        ColorDTO nuevoColorDTO = colorService.crearColor(colorDTO);
+        return new ResponseEntity<>(nuevoColorDTO, HttpStatus.CREATED);
     }
 
     // Actualizar un color
     @PutMapping("/{id}")
-    public ResponseEntity<Color> actualizarColor(@PathVariable Long id, @RequestBody Color color) {
+    public ResponseEntity<ColorDTO> actualizarColor(@PathVariable Long id, @RequestBody ColorDTO colorDTO) {
         try {
-            Color colorActualizado = colorService.actualizarColor(id, color);
+            ColorDTO colorActualizado = colorService.actualizarColor(id, colorDTO);
             return ResponseEntity.ok(colorActualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

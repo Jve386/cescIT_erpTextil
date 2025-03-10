@@ -1,5 +1,6 @@
 package com.tiendatextil.service;
 
+import com.tiendatextil.dto.CategoriaDTO;
 import com.tiendatextil.model.Categoria;
 import com.tiendatextil.repository.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoriaService {
@@ -19,28 +21,34 @@ public class CategoriaService {
     }
 
     // Crear una nueva categoría
-    public Categoria crearCategoria(Categoria categoria) {
-        return categoriaRepository.save(categoria);
+    public CategoriaDTO crearCategoria(CategoriaDTO categoriaDTO) {
+        Categoria categoria = convertirACategoria(categoriaDTO);
+        Categoria categoriaGuardada = categoriaRepository.save(categoria);
+        return convertirACategoriaDTO(categoriaGuardada);
     }
 
     // Obtener todas las categorías
-    public List<Categoria> obtenerCategorias() {
-        return categoriaRepository.findAll();
+    public List<CategoriaDTO> obtenerCategorias() {
+        List<Categoria> categorias = categoriaRepository.findAll();
+        return categorias.stream()
+                         .map(this::convertirACategoriaDTO)
+                         .collect(Collectors.toList());
     }
 
     // Obtener una categoría por su ID
-    public Optional<Categoria> obtenerCategoriaPorId(Long id) {
-        return categoriaRepository.findById(id);
+    public Optional<CategoriaDTO> obtenerCategoriaPorId(Long id) {
+        return categoriaRepository.findById(id).map(this::convertirACategoriaDTO);
     }
 
     // Actualizar una categoría
-    public Categoria actualizarCategoria(Long id, Categoria categoria) {
-        if (categoriaRepository.existsById(id)) {
-            categoria.setId(id); // Aseguramos que el ID no cambie
-            return categoriaRepository.save(categoria);
-        } else {
-            throw new RuntimeException("Categoría no encontrada");
-        }
+    public CategoriaDTO actualizarCategoria(Long id, CategoriaDTO categoriaDTO) {
+        return categoriaRepository.findById(id)
+                .map(categoriaExistente -> {
+                    categoriaExistente.setNombre(categoriaDTO.getNombre());
+                    Categoria categoriaActualizada = categoriaRepository.save(categoriaExistente);
+                    return convertirACategoriaDTO(categoriaActualizada);
+                })
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
     }
 
     // Eliminar una categoría
@@ -50,5 +58,14 @@ public class CategoriaService {
         } else {
             throw new RuntimeException("Categoría no encontrada");
         }
+    }
+
+    // Métodos de conversión entre DTO y entidad
+    private CategoriaDTO convertirACategoriaDTO(Categoria categoria) {
+        return new CategoriaDTO(categoria.getId(), categoria.getNombre());
+    }
+
+    private Categoria convertirACategoria(CategoriaDTO categoriaDTO) {
+        return new Categoria(categoriaDTO.getNombre());
     }
 }

@@ -1,6 +1,6 @@
 package com.tiendatextil.controller;
 
-import com.tiendatextil.model.DetalleVenta;
+import com.tiendatextil.dto.DetalleVentaDTO;
 import com.tiendatextil.service.DetalleVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,29 +23,29 @@ public class DetalleVentaController {
 
     // Obtener todos los detalles de venta
     @GetMapping
-    public List<DetalleVenta> obtenerDetallesVenta() {
+    public List<DetalleVentaDTO> obtenerDetallesVenta() {
         return detalleVentaService.obtenerDetallesVenta();
     }
 
     // Obtener un detalle de venta por id
     @GetMapping("/{id}")
-    public ResponseEntity<DetalleVenta> obtenerDetalleVentaPorId(@PathVariable Long id) {
-        Optional<DetalleVenta> detalleVenta = detalleVentaService.obtenerDetalleVentaPorId(id);
-        return detalleVenta.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<DetalleVentaDTO> obtenerDetalleVentaPorId(@PathVariable Long id) {
+        Optional<DetalleVentaDTO> detalleVentaDTO = detalleVentaService.obtenerDetalleVentaPorId(id);
+        return detalleVentaDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Crear un nuevo detalle de venta
     @PostMapping
-    public ResponseEntity<DetalleVenta> crearDetalleVenta(@RequestBody DetalleVenta detalleVenta) {
-        DetalleVenta nuevoDetalleVenta = detalleVentaService.crearDetalleVenta(detalleVenta);
-        return new ResponseEntity<>(nuevoDetalleVenta, HttpStatus.CREATED);
+    public ResponseEntity<DetalleVentaDTO> crearDetalleVenta(@RequestBody DetalleVentaDTO detalleVentaDTO) {
+        DetalleVentaDTO nuevoDetalleVentaDTO = detalleVentaService.crearDetalleVenta(detalleVentaDTO);
+        return new ResponseEntity<>(nuevoDetalleVentaDTO, HttpStatus.CREATED);
     }
 
     // Actualizar un detalle de venta
     @PutMapping("/{id}")
-    public ResponseEntity<DetalleVenta> actualizarDetalleVenta(@PathVariable Long id, @RequestBody DetalleVenta detalleVenta) {
+    public ResponseEntity<DetalleVentaDTO> actualizarDetalleVenta(@PathVariable Long id, @RequestBody DetalleVentaDTO detalleVentaDTO) {
         try {
-            DetalleVenta detalleVentaActualizado = detalleVentaService.actualizarDetalleVenta(id, detalleVenta);
+            DetalleVentaDTO detalleVentaActualizado = detalleVentaService.actualizarDetalleVenta(id, detalleVentaDTO);
             return ResponseEntity.ok(detalleVentaActualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

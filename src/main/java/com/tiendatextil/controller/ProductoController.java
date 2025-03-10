@@ -1,5 +1,6 @@
 package com.tiendatextil.controller;
 
+import com.tiendatextil.dto.ProductoDTO;
 import com.tiendatextil.model.Producto;
 import com.tiendatextil.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,32 +24,36 @@ public class ProductoController {
 
     // Obtener todos los productos
     @GetMapping
-    public List<Producto> obtenerProductos() {
+    public List<ProductoDTO> obtenerProductos() {
         return productoService.obtenerProductos();
     }
 
     // Obtener un producto por id
     @GetMapping("/{id}")
-    public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable Long id) {
-        Optional<Producto> producto = productoService.obtenerProductoPorId(id);
+    public ResponseEntity<ProductoDTO> obtenerProductoPorId(@PathVariable Long id) {
+        Optional<ProductoDTO> producto = productoService.obtenerProductoPorId(id);
         return producto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Crear un nuevo producto
     @PostMapping
-    public ResponseEntity<Producto> crearProducto(@RequestBody Producto producto) {
-        Producto nuevoProducto = productoService.crearProducto(producto);
-        return new ResponseEntity<>(nuevoProducto, HttpStatus.CREATED);
+    public ResponseEntity<ProductoDTO> crearProducto(@RequestBody ProductoDTO productoDTO) {
+        try {
+            ProductoDTO nuevoProducto = productoService.crearProducto(productoDTO);
+            return new ResponseEntity<>(nuevoProducto, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Si la categoría no existe
+        }
     }
 
     // Actualizar un producto
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto producto) {
+    public ResponseEntity<ProductoDTO> actualizarProducto(@PathVariable Long id, @RequestBody ProductoDTO productoDTO) {
         try {
-            Producto productoActualizado = productoService.actualizarProducto(id, producto);
+            ProductoDTO productoActualizado = productoService.actualizarProducto(id, productoDTO);
             return ResponseEntity.ok(productoActualizado);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Si la categoría no existe o hay otro error
         }
     }
 

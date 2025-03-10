@@ -1,5 +1,6 @@
 package com.tiendatextil.service;
 
+import com.tiendatextil.dto.AlmacenDTO;
 import com.tiendatextil.model.Almacen;
 import com.tiendatextil.repository.AlmacenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AlmacenService {
@@ -19,33 +21,42 @@ public class AlmacenService {
     }
 
     // Crear un nuevo almacén
-    public Almacen crearAlmacen(Almacen almacen) {
-        // Validación para asegurar que el tipo de almacén sea válido
-        if (almacen.getTipoAlmacen() == null || (!almacen.getTipoAlmacen().equals("Tienda") && !almacen.getTipoAlmacen().equals("Almacén"))) {
+    public AlmacenDTO crearAlmacen(AlmacenDTO almacenDTO) {
+        if (almacenDTO.getTipoAlmacen() == null || 
+            (!almacenDTO.getTipoAlmacen().equals("Tienda") && 
+             !almacenDTO.getTipoAlmacen().equals("Almacén"))) {
             throw new IllegalArgumentException("Tipo de almacén inválido");
         }
-        return almacenRepository.save(almacen);
+
+        Almacen almacen = convertirAAlmacen(almacenDTO);
+        Almacen almacenGuardado = almacenRepository.save(almacen);
+        return convertirAAlmacenDTO(almacenGuardado);
     }
 
     // Obtener todos los almacenes
-    public List<Almacen> obtenerAlmacenes() {
-        return almacenRepository.findAll();
+    public List<AlmacenDTO> obtenerAlmacenes() {
+        List<Almacen> almacenes = almacenRepository.findAll();
+        return almacenes.stream().map(this::convertirAAlmacenDTO).collect(Collectors.toList());
     }
 
     // Obtener un almacén por su ID
-    public Optional<Almacen> obtenerAlmacenPorId(Long id) {
-        return almacenRepository.findById(id);
+    public Optional<AlmacenDTO> obtenerAlmacenPorId(Long id) {
+        return almacenRepository.findById(id).map(this::convertirAAlmacenDTO);
     }
 
     // Actualizar un almacén
-    public Almacen actualizarAlmacen(Long id, Almacen almacen) {
-        if (almacen.getTipoAlmacen() == null || (!almacen.getTipoAlmacen().equals("Tienda") && !almacen.getTipoAlmacen().equals("Almacén"))) {
+    public AlmacenDTO actualizarAlmacen(Long id, AlmacenDTO almacenDTO) {
+        if (almacenDTO.getTipoAlmacen() == null || 
+            (!almacenDTO.getTipoAlmacen().equals("Tienda") && 
+             !almacenDTO.getTipoAlmacen().equals("Almacén"))) {
             throw new IllegalArgumentException("Tipo de almacén inválido");
         }
 
         if (almacenRepository.existsById(id)) {
-            almacen.setId(id);
-            return almacenRepository.save(almacen);
+            Almacen almacen = convertirAAlmacen(almacenDTO);
+            almacen.setId(id);  // Aseguramos que usa el mismo ID
+            Almacen almacenActualizado = almacenRepository.save(almacen);
+            return convertirAAlmacenDTO(almacenActualizado);
         } else {
             throw new RuntimeException("Almacén no encontrado");
         }
@@ -58,5 +69,19 @@ public class AlmacenService {
         } else {
             throw new RuntimeException("Almacén no encontrado");
         }
+    }
+
+    // Métodos para convertir entre entidad y DTO
+    private AlmacenDTO convertirAAlmacenDTO(Almacen almacen) {
+        return new AlmacenDTO(almacen.getId(), almacen.getNombre(), almacen.getDireccion(), almacen.getTipoAlmacen());
+    }
+
+    private Almacen convertirAAlmacen(AlmacenDTO almacenDTO) {
+        Almacen almacen = new Almacen();
+        almacen.setId(almacenDTO.getId());
+        almacen.setNombre(almacenDTO.getNombre());
+        almacen.setDireccion(almacenDTO.getDireccion());
+        almacen.setTipoAlmacen(almacenDTO.getTipoAlmacen());
+        return almacen;
     }
 }

@@ -1,6 +1,6 @@
 package com.tiendatextil.controller;
 
-import com.tiendatextil.model.Venta;
+import com.tiendatextil.dto.VentaDTO;
 import com.tiendatextil.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/ventas")
+@RequestMapping("/ventas")
 public class VentaController {
 
     private final VentaService ventaService;
@@ -21,34 +21,41 @@ public class VentaController {
         this.ventaService = ventaService;
     }
 
+    // Crear una nueva venta
+    @PostMapping
+    public ResponseEntity<VentaDTO> crearVenta(@RequestBody VentaDTO ventaDTO) {
+        try {
+            // Retornamos la respuesta con el objeto VentaDTO creado y el código 201 Created
+            VentaDTO createdVenta = ventaService.crearVenta(ventaDTO);
+            return new ResponseEntity<>(createdVenta, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            // En caso de error, retornamos el código de estado 400 Bad Request
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     // Obtener todas las ventas
     @GetMapping
-    public List<Venta> obtenerVentas() {
-        return ventaService.obtenerVentas();
+    public ResponseEntity<List<VentaDTO>> obtenerVentas() {
+        List<VentaDTO> ventas = ventaService.obtenerVentas();
+        return new ResponseEntity<>(ventas, HttpStatus.OK); // Respuesta con código 200 OK
     }
 
     // Obtener una venta por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Venta> obtenerVentaPorId(@PathVariable Long id) {
-        Optional<Venta> venta = ventaService.obtenerVentaPorId(id);
-        return venta.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    // Crear una nueva venta
-    @PostMapping
-    public ResponseEntity<Venta> crearVenta(@RequestBody Venta venta) {
-        Venta nuevaVenta = ventaService.crearVenta(venta);
-        return new ResponseEntity<>(nuevaVenta, HttpStatus.CREATED);
+    public ResponseEntity<VentaDTO> obtenerVentaPorId(@PathVariable Long id) {
+        Optional<VentaDTO> venta = ventaService.obtenerVentaPorId(id);
+        return venta.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build()); // OK o Not Found
     }
 
     // Actualizar una venta
     @PutMapping("/{id}")
-    public ResponseEntity<Venta> actualizarVenta(@PathVariable Long id, @RequestBody Venta venta) {
+    public ResponseEntity<VentaDTO> actualizarVenta(@PathVariable Long id, @RequestBody VentaDTO ventaDTO) {
         try {
-            Venta ventaActualizada = ventaService.actualizarVenta(id, venta);
-            return ResponseEntity.ok(ventaActualizada);
+            VentaDTO updatedVenta = ventaService.actualizarVenta(id, ventaDTO);
+            return new ResponseEntity<>(updatedVenta, HttpStatus.OK); // Respuesta con código 200 OK
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST); // Si hay error, código 400
         }
     }
 
@@ -57,9 +64,9 @@ public class VentaController {
     public ResponseEntity<Void> eliminarVenta(@PathVariable Long id) {
         try {
             ventaService.eliminarVenta(id);
-            return ResponseEntity.noContent().build();
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Respuesta con código 204 No Content
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Si no se encuentra la venta, código 404
         }
     }
 }

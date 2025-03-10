@@ -1,6 +1,6 @@
 package com.tiendatextil.controller;
 
-import com.tiendatextil.model.Rol;
+import com.tiendatextil.dto.RolDTO;
 import com.tiendatextil.service.RolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,32 +23,36 @@ public class RolController {
 
     // Obtener todos los roles
     @GetMapping
-    public List<Rol> obtenerRoles() {
+    public List<RolDTO> obtenerRoles() {
         return rolService.obtenerRoles();
     }
 
     // Obtener un rol por id
     @GetMapping("/{id}")
-    public ResponseEntity<Rol> obtenerRolPorId(@PathVariable Long id) {
-        Optional<Rol> rol = rolService.obtenerRolPorId(id);
+    public ResponseEntity<RolDTO> obtenerRolPorId(@PathVariable Long id) {
+        Optional<RolDTO> rol = rolService.obtenerRolPorId(id);
         return rol.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Crear un nuevo rol
     @PostMapping
-    public ResponseEntity<Rol> crearRol(@RequestBody Rol rol) {
-        Rol nuevoRol = rolService.crearRol(rol);
-        return new ResponseEntity<>(nuevoRol, HttpStatus.CREATED);
+    public ResponseEntity<RolDTO> crearRol(@RequestBody RolDTO rolDTO) {
+        try {
+            RolDTO nuevoRol = rolService.crearRol(rolDTO);
+            return new ResponseEntity<>(nuevoRol, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // En caso de error
+        }
     }
 
     // Actualizar un rol
     @PutMapping("/{id}")
-    public ResponseEntity<Rol> actualizarRol(@PathVariable Long id, @RequestBody Rol rol) {
+    public ResponseEntity<RolDTO> actualizarRol(@PathVariable Long id, @RequestBody RolDTO rolDTO) {
         try {
-            Rol rolActualizado = rolService.actualizarRol(id, rol);
+            RolDTO rolActualizado = rolService.actualizarRol(id, rolDTO);
             return ResponseEntity.ok(rolActualizado);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Si no se encuentra el rol
         }
     }
 

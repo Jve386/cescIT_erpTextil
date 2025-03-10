@@ -2,11 +2,13 @@ package com.tiendatextil.service;
 
 import com.tiendatextil.model.Rol;
 import com.tiendatextil.repository.RolRepository;
+import com.tiendatextil.dto.RolDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RolService {
@@ -19,25 +21,31 @@ public class RolService {
     }
 
     // Crear un nuevo rol
-    public Rol crearRol(Rol rol) {
-        return rolRepository.save(rol);
+    public RolDTO crearRol(RolDTO rolDTO) {
+        Rol rol = new Rol(rolDTO.getNombre());
+        Rol nuevoRol = rolRepository.save(rol);
+        return new RolDTO(nuevoRol.getId(), nuevoRol.getNombre());
     }
 
     // Obtener todos los roles
-    public List<Rol> obtenerRoles() {
-        return rolRepository.findAll();
+    public List<RolDTO> obtenerRoles() {
+        return rolRepository.findAll().stream()
+            .map(rol -> new RolDTO(rol.getId(), rol.getNombre()))
+            .collect(Collectors.toList());
     }
 
     // Obtener un rol por su ID
-    public Optional<Rol> obtenerRolPorId(Long id) {
-        return rolRepository.findById(id);
+    public Optional<RolDTO> obtenerRolPorId(Long id) {
+        return rolRepository.findById(id).map(rol -> new RolDTO(rol.getId(), rol.getNombre()));
     }
 
     // Actualizar un rol
-    public Rol actualizarRol(Long id, Rol rol) {
+    public RolDTO actualizarRol(Long id, RolDTO rolDTO) {
         if (rolRepository.existsById(id)) {
+            Rol rol = new Rol(rolDTO.getNombre());
             rol.setId(id);
-            return rolRepository.save(rol);
+            Rol rolActualizado = rolRepository.save(rol);
+            return new RolDTO(rolActualizado.getId(), rolActualizado.getNombre());
         } else {
             throw new RuntimeException("Rol no encontrado");
         }

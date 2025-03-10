@@ -1,6 +1,6 @@
 package com.tiendatextil.controller;
 
-import com.tiendatextil.model.Talla;
+import com.tiendatextil.dto.TallaDTO;
 import com.tiendatextil.service.TallaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,32 +23,36 @@ public class TallaController {
 
     // Obtener todas las tallas
     @GetMapping
-    public List<Talla> obtenerTallas() {
+    public List<TallaDTO> obtenerTallas() {
         return tallaService.obtenerTallas();
     }
 
     // Obtener una talla por id
     @GetMapping("/{id}")
-    public ResponseEntity<Talla> obtenerTallaPorId(@PathVariable Long id) {
-        Optional<Talla> talla = tallaService.obtenerTallaPorId(id);
+    public ResponseEntity<TallaDTO> obtenerTallaPorId(@PathVariable Long id) {
+        Optional<TallaDTO> talla = tallaService.obtenerTallaPorId(id);
         return talla.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Crear una nueva talla
     @PostMapping
-    public ResponseEntity<Talla> crearTalla(@RequestBody Talla talla) {
-        Talla nuevaTalla = tallaService.crearTalla(talla);
-        return new ResponseEntity<>(nuevaTalla, HttpStatus.CREATED);
+    public ResponseEntity<TallaDTO> crearTalla(@RequestBody TallaDTO tallaDTO) {
+        try {
+            TallaDTO nuevaTalla = tallaService.crearTalla(tallaDTO);
+            return new ResponseEntity<>(nuevaTalla, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // En caso de error
+        }
     }
 
     // Actualizar una talla
     @PutMapping("/{id}")
-    public ResponseEntity<Talla> actualizarTalla(@PathVariable Long id, @RequestBody Talla talla) {
+    public ResponseEntity<TallaDTO> actualizarTalla(@PathVariable Long id, @RequestBody TallaDTO tallaDTO) {
         try {
-            Talla tallaActualizada = tallaService.actualizarTalla(id, talla);
+            TallaDTO tallaActualizada = tallaService.actualizarTalla(id, tallaDTO);
             return ResponseEntity.ok(tallaActualizada);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Si no se encuentra la talla
         }
     }
 

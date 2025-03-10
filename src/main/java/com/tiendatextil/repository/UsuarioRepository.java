@@ -14,4 +14,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     // Buscar todos los usuarios con un rol específico
     Optional<List<Usuario>> findByRol_Id(Long id);
+
+    // Método para verificar si un usuario con el email ya existe
+    boolean existsByEmail(String email);
 }
