@@ -36,6 +36,23 @@ public class StockController {
         StockDTO stockDTO = stockService.obtenerStockPorId(id);
         return ResponseEntity.ok(stockDTO);
     }
+    
+    //Obtener un stock por articuloID
+    @GetMapping("/articulo/{id}")
+    public ResponseEntity<List<StockDTO>> obtenerStockPorArticuloId(@PathVariable Long id) {
+        List<Stock> stocks = stockService.obtenerStockPorArticulo(id);
+
+        if (stocks.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Convertir los stocks a StockDTO
+        List<StockDTO> stockDTOs = stocks.stream()
+                .map(StockDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(stockDTOs);
+    }
 
     // Crear un nuevo stock desde DTO
     @PostMapping

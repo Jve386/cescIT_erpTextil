@@ -123,4 +123,9 @@ public class StockService {
 
         return stock;
     }
+
+    // Obtener stock por articulo
+    public List<Stock> obtenerStockPorArticulo(Long articuloId) {
+        return stockRepository.findByArticuloId(articuloId);
+    }
 }
