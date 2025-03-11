@@ -37,8 +37,14 @@ public class VentaController {
     // Crear una nueva venta
     @PostMapping
     public ResponseEntity<Venta> crearVenta(@RequestBody Venta venta) {
-        Venta nuevaVenta = ventaService.crearVenta(venta);
-        return new ResponseEntity<>(nuevaVenta, HttpStatus.CREATED);
+        try {
+            venta.setNumeroTicket(null);
+
+            Venta nuevaVenta = ventaService.crearVenta(venta); // Crear la venta
+            return new ResponseEntity<>(nuevaVenta, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // Actualizar una venta

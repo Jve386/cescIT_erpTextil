@@ -6,6 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -54,5 +55,10 @@ public class Venta {
         this.numeroTicket = numeroTicket;
         this.estado = estado;
         this.fecha = fecha;
+    }
+
+    // Método para generar un número de ticket único usando UUID
+    private String generarNumeroTicket() {
+        return UUID.randomUUID().toString(); // Usamos UUID para generar un número único
     }
 }

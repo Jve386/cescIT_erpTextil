@@ -21,4 +21,6 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
     // Buscar stock por artículo y almacén
     Optional<Stock> findByAlmacenIdAndArticuloId(Long almacenId, Long articuloId);
+
+
 }

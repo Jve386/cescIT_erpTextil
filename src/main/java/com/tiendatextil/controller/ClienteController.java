@@ -34,6 +34,14 @@ public class ClienteController {
         return cliente.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // Obtener solo el nombre de un cliente por id
+    @GetMapping("/nombre/{id}")
+    public ResponseEntity<String> obtenerNombreClientePorId(@PathVariable Long id) {
+        Optional<Cliente> cliente = clienteService.obtenerClientePorId(id);
+        return cliente.map(c -> ResponseEntity.ok(c.getNombre()))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     // Crear un nuevo cliente
     @PostMapping
     public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente) {
