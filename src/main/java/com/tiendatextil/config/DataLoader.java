@@ -1,4 +1,3 @@
-// DataLoader
 package com.tiendatextil.config;
 
 import com.tiendatextil.model.*;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.Optional;
-
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -56,15 +54,6 @@ public class DataLoader implements CommandLineRunner {
         try {
             System.out.println("Iniciando carga de datos...");
 
-//            // Limpiar datos anteriores
-//            detalleVentaRepository.deleteAll();
-//            ventaRepository.deleteAll();
-//            stockRepository.deleteAll();
-//            articuloRepository.deleteAll();
-//            productoRepository.deleteAll();
-//            categoriaRepository.deleteAll();
-//            rolRepository.deleteAll();
-
             // Insertar datos de ejemplo en la tabla de roles
             if (rolRepository.count() == 0) {
                 System.out.println("Insertando roles...");
@@ -97,9 +86,15 @@ public class DataLoader implements CommandLineRunner {
 
             // Insertar almacenes
             if (almacenRepository.count() == 0) {
-                saveIfNotExists(almacenRepository, new Almacen("Tienda Central", "Calle Principal 123", "Tienda"), a -> a.getNombre().equals("Tienda Central"));
-                saveIfNotExists(almacenRepository, new Almacen("Almacén Norte", "Avenida Industrial 456", "Almacén"), a -> a.getNombre().equals("Almacén Norte"));
+                saveIfNotExists(almacenRepository,
+                        new Almacen("Tienda Central", "Calle Principal 123", TipoAlmacen.TIENDA),
+                        a -> a.getNombre().equals("Tienda Central"));
+
+                saveIfNotExists(almacenRepository,
+                        new Almacen("Almacén Norte", "Avenida Industrial 456", TipoAlmacen.ALMACEN),
+                        a -> a.getNombre().equals("Almacén Norte"));
             }
+
             // Insertar clientes
             if (clienteRepository.count() == 0) {
                 saveIfNotExists(clienteRepository, new Cliente("Juan Pérez", "juan@example.com", "123456789"), c -> c.getNombre().equals("Juan Pérez"));
@@ -155,82 +150,15 @@ public class DataLoader implements CommandLineRunner {
                 saveIfNotExists(stockRepository, new Stock(zapatillasXL, tiendaCentral, 10), s -> s.getArticulo().equals(zapatillasXL) && s.getAlmacen().equals(tiendaCentral));
             }
 
-            // Insertar ventas y detalles de ventas
-            if (ventaRepository.count() == 0) {
-                Cliente juan = clienteRepository.findByNombre("Juan Pérez").orElseThrow();
-                Cliente maria = clienteRepository.findByNombre("María López").orElseThrow();
-                Almacen tiendaCentral = almacenRepository.findByNombre("Tienda Central").orElseThrow();
-
-                Venta ventaJuan = new Venta(juan, tiendaCentral, 39.98, 47.98, "ticket001", "completada", new Date());
-                saveIfNotExists(ventaRepository, ventaJuan, v -> v.getNumeroTicket().equals("ticket001"));
-
-                Venta ventaMaria = new Venta(maria, tiendaCentral, 49.99, 59.99, "ticket002", "completada", new Date());
-                saveIfNotExists(ventaRepository, ventaMaria, v -> v.getNumeroTicket().equals("ticket002"));
-
-                Articulo camisetaS = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor("Camiseta Básica", "S", "Rojo").orElseThrow();
-                Articulo pantalonL = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor("Pantalón Vaquero", "L", "Negro").orElseThrow();
-                Articulo zapatillasXL = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor("Zapatillas Deportivas", "XL", "Blanco").orElseThrow();
-
-                // Aquí calculamos precioSinIva, iva, y precioTotal
-                double precioSinIvaCamiseta = 9.99 * 2;
-                double ivaCamiseta = precioSinIvaCamiseta * 0.21;
-                double precioTotalCamiseta = precioSinIvaCamiseta + ivaCamiseta;
-
-                double precioSinIvaPantalon = 29.99 * 1;
-                double ivaPantalon = precioSinIvaPantalon * 0.21;
-                double precioTotalPantalon = precioSinIvaPantalon + ivaPantalon;
-
-                double precioSinIvaZapatillas = 49.99 * 1;
-                double ivaZapatillas = precioSinIvaZapatillas * 0.21;
-                double precioTotalZapatillas = precioSinIvaZapatillas + ivaZapatillas;
-
-                // Insertamos los detalles de venta usando los setters
-                DetalleVenta detalleVentaJuanCamiseta = new DetalleVenta();
-                detalleVentaJuanCamiseta.setVenta(ventaJuan);
-                detalleVentaJuanCamiseta.setArticulo(camisetaS);
-                detalleVentaJuanCamiseta.setCantidad(2);
-                detalleVentaJuanCamiseta.setPrecioUnitario(9.99);
-                detalleVentaJuanCamiseta.setPrecioSinIva(precioSinIvaCamiseta);
-                detalleVentaJuanCamiseta.setIva(ivaCamiseta);
-                detalleVentaJuanCamiseta.setPrecioTotal(precioTotalCamiseta);
-
-                DetalleVenta detalleVentaJuanPantalon = new DetalleVenta();
-                detalleVentaJuanPantalon.setVenta(ventaJuan);
-                detalleVentaJuanPantalon.setArticulo(pantalonL);
-                detalleVentaJuanPantalon.setCantidad(1);
-                detalleVentaJuanPantalon.setPrecioUnitario(29.99);
-                detalleVentaJuanPantalon.setPrecioSinIva(precioSinIvaPantalon);
-                detalleVentaJuanPantalon.setIva(ivaPantalon);
-                detalleVentaJuanPantalon.setPrecioTotal(precioTotalPantalon);
-
-                DetalleVenta detalleVentaMariaZapatillas = new DetalleVenta();
-                detalleVentaMariaZapatillas.setVenta(ventaMaria);
-                detalleVentaMariaZapatillas.setArticulo(zapatillasXL);
-                detalleVentaMariaZapatillas.setCantidad(1);
-                detalleVentaMariaZapatillas.setPrecioUnitario(49.99);
-                detalleVentaMariaZapatillas.setPrecioSinIva(precioSinIvaZapatillas);
-                detalleVentaMariaZapatillas.setIva(ivaZapatillas);
-                detalleVentaMariaZapatillas.setPrecioTotal(precioTotalZapatillas);
-
-                // Guardar los detalles de venta
-                detalleVentaRepository.save(detalleVentaJuanCamiseta);
-                detalleVentaRepository.save(detalleVentaJuanPantalon);
-                detalleVentaRepository.save(detalleVentaMariaZapatillas);
-            }
-
-
             System.out.println("Carga de datos completada exitosamente.");
         } catch (Exception e) {
-            System.err.println("Error al cargar datos: " + e.getMessage());
+            System.err.println("Error al cargar los datos de prueba: " + e.getMessage());
             e.printStackTrace();
-            throw e;
         }
     }
 
-    // Snippet para evitar registros duplicados
-    private <T> void saveIfNotExists(JpaRepository<T, ?> repository, T entity, java.util.function.Predicate<T> predicate) {
-        Optional<T> existingEntity = repository.findAll().stream().filter(predicate).findFirst();
-        if (existingEntity.isEmpty()) {
+    private <T> void saveIfNotExists(JpaRepository<T, Long> repository, T entity, java.util.function.Predicate<T> condition) {
+        if (repository.findAll().stream().noneMatch(condition)) {
             repository.save(entity);
         }
     }

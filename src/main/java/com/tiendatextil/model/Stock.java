@@ -20,14 +20,17 @@ public class Stock {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "articulo_id")
+    @JoinColumn(name = "id_articulo")
     private Articulo articulo;
 
     @ManyToOne
-    @JoinColumn(name = "almacen_id")
+    @JoinColumn(name = "id_almacen", nullable = false)
     private Almacen almacen;
 
     private int cantidad;
+
+    public Stock() {
+    }
 
     public Stock(Articulo articulo, Almacen almacen, int cantidad) {
         this.articulo = articulo;

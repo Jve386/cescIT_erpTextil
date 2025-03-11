@@ -1,62 +1,58 @@
 package com.tiendatextil.service;
 
-import com.tiendatextil.dto.StockDTO;
 import com.tiendatextil.model.Stock;
-import com.tiendatextil.model.Articulo;  // Asegúrate de que esta clase esté importada
-import com.tiendatextil.model.Almacen;   // Asegúrate de que esta clase esté importada
+import com.tiendatextil.model.Almacen;
 import com.tiendatextil.repository.StockRepository;
-import com.tiendatextil.repository.ArticuloRepository;  // Repositorio para Articulo
-import com.tiendatextil.repository.AlmacenRepository;   // Repositorio para Almacen
+import com.tiendatextil.repository.AlmacenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class StockService {
 
     private final StockRepository stockRepository;
-    private final ArticuloRepository articuloRepository;  // Inyectamos el repositorio de Articulo
-    private final AlmacenRepository almacenRepository;    // Inyectamos el repositorio de Almacen
+    private final AlmacenRepository almacenRepository;
 
     @Autowired
-    public StockService(StockRepository stockRepository,
-                        ArticuloRepository articuloRepository,
-                        AlmacenRepository almacenRepository) {
+    public StockService(StockRepository stockRepository, AlmacenRepository almacenRepository) {
         this.stockRepository = stockRepository;
-        this.articuloRepository = articuloRepository;
         this.almacenRepository = almacenRepository;
     }
 
     // Crear un nuevo stock
-    public StockDTO crearStock(StockDTO stockDTO) {
-        Stock stock = convertirAStock(stockDTO);
-        Stock nuevoStock = stockRepository.save(stock);
-        return convertirAStockDTO(nuevoStock);
+    public Stock crearStock(Stock stock) {
+        if (stock.getAlmacen() == null) {
+            throw new IllegalArgumentException("El almacén no puede ser nulo");
+        }
+
+        // Verificar que el almacén realmente exista
+        Optional<Almacen> almacenOptional = almacenRepository.findById(stock.getAlmacen().getId());
+        if (!almacenOptional.isPresent()) {
+            throw new IllegalArgumentException("Almacén no encontrado");
+        }
+
+        return stockRepository.save(stock);
     }
 
     // Obtener todos los stocks
-    public List<StockDTO> obtenerStocks() {
-        List<Stock> stocks = stockRepository.findAll();
-        return stocks.stream()
-                     .map(this::convertirAStockDTO)
-                     .collect(Collectors.toList());
+    public List<Stock> obtenerStocks() {
+        return stockRepository.findAll();
     }
 
     // Obtener un stock por su ID
-    public Optional<StockDTO> obtenerStockPorId(Long id) {
-        Optional<Stock> stock = stockRepository.findById(id);
-        return stock.map(this::convertirAStockDTO);
+    public Optional<Stock> obtenerStockPorId(Long id) {
+        return stockRepository.findById(id);
     }
 
-    // Actualizar un stock
-    public StockDTO actualizarStock(Long id, StockDTO stockDTO) {
-        Stock stock = convertirAStock(stockDTO);
-        stock.setId(id);
-        Stock stockActualizado = stockRepository.save(stock);
-        return convertirAStockDTO(stockActualizado);
+    public Stock actualizarStock(Long id, Stock stock) {
+        if (stockRepository.existsById(id)) {
+            return stockRepository.save(stock);
+        } else {
+            throw new RuntimeException("Stock no encontrado");
+        }
     }
 
     // Eliminar un stock
@@ -66,26 +62,5 @@ public class StockService {
         } else {
             throw new RuntimeException("Stock no encontrado");
         }
-    }
-
-    // Conversión de StockDTO a Stock
-    private Stock convertirAStock(StockDTO stockDTO) {
-        // Aquí estamos buscando los objetos Articulo y Almacen por su ID
-        Articulo articulo = articuloRepository.findById(stockDTO.getIdArticulo())
-                                              .orElseThrow(() -> new RuntimeException("Articulo no encontrado"));
-        Almacen almacen = almacenRepository.findById(stockDTO.getIdAlmacen())
-                                           .orElseThrow(() -> new RuntimeException("Almacen no encontrado"));
-
-        return new Stock(articulo, almacen, stockDTO.getCantidad());
-    }
-
-    // Conversión de Stock a StockDTO
-    private StockDTO convertirAStockDTO(Stock stock) {
-        return new StockDTO(
-            stock.getId(),
-            stock.getArticulo().getId(),
-            stock.getAlmacen().getId(),
-            stock.getCantidad()
-        );
     }
 }

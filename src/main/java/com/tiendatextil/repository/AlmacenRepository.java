@@ -1,5 +1,5 @@
 package com.tiendatextil.repository;
-
+import com.tiendatextil.model.TipoAlmacen;
 import com.tiendatextil.model.Almacen;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,5 +13,5 @@ public interface AlmacenRepository extends JpaRepository<Almacen, Long> {
     Optional<Almacen> findByNombre(String nombre);
 
     // Buscar almacenes por tipo
-    List<Almacen> findByTipoAlmacen(String tipoAlmacen);
+    List<Almacen> findByTipoAlmacen(TipoAlmacen tipoAlmacen);
 }

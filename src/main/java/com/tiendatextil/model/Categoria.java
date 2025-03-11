@@ -13,7 +13,7 @@ public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_categoria")
-    private Long id;  // Este campo se generará automáticamente
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String nombre;

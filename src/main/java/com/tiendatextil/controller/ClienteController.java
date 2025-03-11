@@ -1,6 +1,6 @@
 package com.tiendatextil.controller;
 
-import com.tiendatextil.dto.ClienteDTO;
+import com.tiendatextil.model.Cliente;
 import com.tiendatextil.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,29 +23,29 @@ public class ClienteController {
 
     // Obtener todos los clientes
     @GetMapping
-    public List<ClienteDTO> obtenerClientes() {
+    public List<Cliente> obtenerClientes() {
         return clienteService.obtenerClientes();
     }
 
     // Obtener un cliente por id
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteDTO> obtenerClientePorId(@PathVariable Long id) {
-        Optional<ClienteDTO> clienteDTO = clienteService.obtenerClientePorId(id);
-        return clienteDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Cliente> obtenerClientePorId(@PathVariable Long id) {
+        Optional<Cliente> cliente = clienteService.obtenerClientePorId(id);
+        return cliente.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Crear un nuevo cliente
     @PostMapping
-    public ResponseEntity<ClienteDTO> crearCliente(@RequestBody ClienteDTO clienteDTO) {
-        ClienteDTO nuevoClienteDTO = clienteService.crearCliente(clienteDTO);
-        return new ResponseEntity<>(nuevoClienteDTO, HttpStatus.CREATED);
+    public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente) {
+        Cliente nuevoCliente = clienteService.crearCliente(cliente);
+        return new ResponseEntity<>(nuevoCliente, HttpStatus.CREATED);
     }
 
     // Actualizar un cliente
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteDTO> actualizarCliente(@PathVariable Long id, @RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long id, @RequestBody Cliente cliente) {
         try {
-            ClienteDTO clienteActualizado = clienteService.actualizarCliente(id, clienteDTO);
+            Cliente clienteActualizado = clienteService.actualizarCliente(id, cliente);
             return ResponseEntity.ok(clienteActualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

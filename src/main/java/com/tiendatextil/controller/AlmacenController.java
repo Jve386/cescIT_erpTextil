@@ -1,6 +1,7 @@
 package com.tiendatextil.controller;
 
-import com.tiendatextil.dto.AlmacenDTO;
+import com.tiendatextil.model.Almacen;
+import com.tiendatextil.model.TipoAlmacen;
 import com.tiendatextil.service.AlmacenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,27 +24,23 @@ public class AlmacenController {
 
     // Obtener todos los almacenes
     @GetMapping
-    public List<AlmacenDTO> obtenerAlmacenes() {
+    public List<Almacen> obtenerAlmacenes() {
         return almacenService.obtenerAlmacenes();
     }
 
     // Obtener un almacén por id
     @GetMapping("/{id}")
-    public ResponseEntity<AlmacenDTO> obtenerAlmacenPorId(@PathVariable Long id) {
-        Optional<AlmacenDTO> almacenDTO = almacenService.obtenerAlmacenPorId(id);
-        return almacenDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Almacen> obtenerAlmacenPorId(@PathVariable Long id) {
+        Optional<Almacen> almacen = almacenService.obtenerAlmacenPorId(id);
+        return almacen.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Crear un nuevo almacén
     @PostMapping
-    public ResponseEntity<AlmacenDTO> crearAlmacen(@RequestBody AlmacenDTO almacenDTO) {
+    public ResponseEntity<Almacen> crearAlmacen(@RequestBody Almacen almacen) {
         try {
-            if (almacenDTO.getTipoAlmacen() == null || 
-                (!almacenDTO.getTipoAlmacen().equals("Tienda") && !almacenDTO.getTipoAlmacen().equals("Almacén"))) {
-                return ResponseEntity.badRequest().build();
-            }
-            AlmacenDTO nuevoAlmacenDTO = almacenService.crearAlmacen(almacenDTO);
-            return new ResponseEntity<>(nuevoAlmacenDTO, HttpStatus.CREATED);
+            Almacen nuevoAlmacen = almacenService.crearAlmacen(almacen);
+            return new ResponseEntity<>(nuevoAlmacen, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -51,13 +48,9 @@ public class AlmacenController {
 
     // Actualizar un almacén
     @PutMapping("/{id}")
-    public ResponseEntity<AlmacenDTO> actualizarAlmacen(@PathVariable Long id, @RequestBody AlmacenDTO almacenDTO) {
+    public ResponseEntity<Almacen> actualizarAlmacen(@PathVariable Long id, @RequestBody Almacen almacen) {
         try {
-            if (almacenDTO.getTipoAlmacen() == null || 
-                (!almacenDTO.getTipoAlmacen().equals("Tienda") && !almacenDTO.getTipoAlmacen().equals("Almacén"))) {
-                return ResponseEntity.badRequest().build();
-            }
-            AlmacenDTO almacenActualizado = almacenService.actualizarAlmacen(id, almacenDTO);
+            Almacen almacenActualizado = almacenService.actualizarAlmacen(id, almacen);
             return ResponseEntity.ok(almacenActualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
