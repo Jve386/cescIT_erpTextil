@@ -58,11 +58,15 @@ public class VentaController {
     public ResponseEntity<?> crearVenta(@RequestBody Venta venta) {
         try {
             venta.setNumeroTicket(null); // Permitir que el backend genere el número de ticket
-
             Venta nuevaVenta = ventaService.crearVenta(venta);
             return new ResponseEntity<>(nuevaVenta, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            if (e.getMessage().contains("Artículo no encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("No hay suficiente stock")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor.");
         }
     }
 

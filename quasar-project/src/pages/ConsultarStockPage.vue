@@ -37,10 +37,14 @@ export default {
   methods: {
     async consultarStock() {
       try {
+        console.log('Consultando stock para artículo ID:', this.idArticuloConsulta);
+        console.log('URL completa:', this.$api.defaults.baseURL + '/stocks/articulo/' + this.idArticuloConsulta);
         const response = await this.$api.get(`/stocks/articulo/${this.idArticuloConsulta}`);
+        console.log('Respuesta del servidor:', response.data);
         this.stockConsulta = response.data;
       } catch (error) {
         console.error('Error al consultar el stock:', error);
+        console.log('Detalles del error:', error.response ? error.response.data : 'No hay detalles');
         this.$q.notify({
           color: 'negative',
           message: 'Hubo un error al consultar el stock.',

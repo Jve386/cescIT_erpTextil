@@ -25,22 +25,46 @@ export default {
       },
     };
   },
+  mounted() {
+    console.log('Initial crearStock:', JSON.parse(JSON.stringify(this.crearStock)));
+  },
   methods: {
     async agregarStock() {
+      // Aseguramos que los valores sean números
+      const datosEnviar = {
+
+        idArticulo: Number(this.crearStock.idArticulo),
+        idAlmacen: Number(this.crearStock.idAlmacen),
+        cantidad: Number(this.crearStock.cantidad),
+      };
+
+      console.log('Datos a enviar (copia profunda):', datosEnviar);
+      console.log('idArticulo:', datosEnviar.idArticulo);
+      console.log('idAlmacen:', datosEnviar.idAlmacen);
+
       try {
-        await this.$api.post('/stocks', this.crearStock);
+        // Enviamos el StockDTO a la API y capturamos la respuesta
+        const response = await this.$api.post('/stocks', datosEnviar);
+
+        // Puedes usar la respuesta para algo si lo deseas
+        console.log('Respuesta de la API:', response);
+
+        // Notificación de éxito
         this.$q.notify({
           color: 'positive',
           message: 'Stock agregado correctamente.',
           icon: 'check',
         });
 
+        // Limpiamos el formulario después de la solicitud
         this.crearStock = {
           idArticulo: null,
           idAlmacen: null,
           cantidad: null,
         };
+        console.log('After reset, crearStock:', JSON.parse(JSON.stringify(this.crearStock)));
       } catch (error) {
+        // Manejo de error si algo sale mal
         console.error('Error al agregar el stock:', error);
         this.$q.notify({
           color: 'negative',
@@ -48,7 +72,9 @@ export default {
           icon: 'warning',
         });
       }
-    },
-  },
+    }
+  }
+
+
 };
 </script>

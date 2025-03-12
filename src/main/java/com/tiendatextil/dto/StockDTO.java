@@ -6,14 +6,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StockDTO {
-    private Long id;
     private Long idArticulo;
+    private Long id;
     private String nombreProducto;
     private String talla;
     private String color;
     private int cantidad;
     private String nombreAlmacen;
-    private Long idAlmacen;  // Agregado
+    private Long idAlmacen;
 
     // Constructor vacío necesario para Jackson
     public StockDTO() {

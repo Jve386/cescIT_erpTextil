@@ -3,12 +3,8 @@ package com.tiendatextil.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.tiendatextil.model.Almacen;
-import com.tiendatextil.model.Articulo;
 import com.tiendatextil.model.Stock;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
