@@ -61,12 +61,24 @@ public class VentaController {
             Venta nuevaVenta = ventaService.crearVenta(venta);
             return new ResponseEntity<>(nuevaVenta, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            if (e.getMessage().contains("Artículo no encontrado")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else if (e.getMessage().contains("No hay suficiente stock")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            String errorMessage = e.getMessage();
+            
+            // Check if the error message is null
+            if (errorMessage == null) {
+                System.err.println("RuntimeException with null message: " + e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno del servidor: excepción sin mensaje");
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor.");
+            
+            // Now it's safe to call contains()
+            if (errorMessage.contains("Artículo no encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+            } else if (errorMessage.contains("No hay suficiente stock")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+            }
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error interno del servidor: " + errorMessage);
         }
     }
 
@@ -80,6 +92,34 @@ public class VentaController {
             Map<String, String> response = new HashMap<>();
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    // Completar una venta pendiente
+    @PutMapping("/{id}/completar")
+    public ResponseEntity<?> completarVenta(@PathVariable Long id) {
+        try {
+            Venta ventaCompletada = ventaService.completarVenta(id);
+            return ResponseEntity.ok(ventaCompletada);
+        } catch (RuntimeException e) {
+            String errorMessage = e.getMessage();
+            
+            // Check if the error message is null
+            if (errorMessage == null) {
+                System.err.println("RuntimeException with null message: " + e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno del servidor: excepción sin mensaje");
+            }
+            
+            // Now it's safe to call contains()
+            if (errorMessage.contains("Venta no encontrada")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+            } else if (errorMessage.contains("No hay suficiente stock")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+            }
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error interno del servidor: " + errorMessage);
         }
     }
 

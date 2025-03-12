@@ -1,7 +1,6 @@
 package com.tiendatextil.controller;
 
 import com.tiendatextil.model.Almacen;
-import com.tiendatextil.model.TipoAlmacen;
 import com.tiendatextil.service.AlmacenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

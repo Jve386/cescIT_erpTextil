@@ -6,8 +6,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Optional;
 
 @Component
 public class DataLoader implements CommandLineRunner {

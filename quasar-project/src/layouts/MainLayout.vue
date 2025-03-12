@@ -22,6 +22,9 @@
         <q-item to="/ventas">
           <q-item-section>Ventas</q-item-section>
         </q-item>
+        <q-item to="/gestionventas">
+          <q-item-section>Gestión de Ventas</q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 

@@ -5,7 +5,7 @@
     </q-banner>
 
     <!-- Formulario para realizar una venta -->
-    <q-form @submit.prevent="realizarVenta" class="q-gutter-md q-mt-lg">
+    <q-form @submit.prevent>
       <div class="row q-col-gutter-md">
         <div class="col-12 col-md-6">
           <q-input v-model="venta.idCliente" label="ID Cliente" type="number" outlined required @blur="buscarCliente" />
@@ -96,8 +96,14 @@
       </q-card>
 
       <div class="q-mt-lg">
-        <q-btn label="Realizar Venta" color="secondary" type="submit" icon="shopping_cart" :loading="loading"
-          :disable="venta.detalles.length === 0" />
+        <div class="row q-col-gutter-md">
+          <div class="col-12 col-md-6">
+            <q-btn label="Guardar Venta" color="primary" icon="save" @click="procesarVenta('pendiente')" :loading="loading" :disable="venta.detalles.length === 0" class="full-width" />
+          </div>
+          <div class="col-12 col-md-6">
+            <q-btn label="Realizar Venta" color="secondary" icon="shopping_cart" @click="procesarVenta('completada')" :loading="loading" :disable="venta.detalles.length === 0" class="full-width" />
+          </div>
+        </div>
       </div>
     </q-form>
   </q-page>
@@ -279,7 +285,7 @@ export default {
       }
     },
 
-    async realizarVenta() {
+    async procesarVenta(estado) {
       if (this.venta.detalles.length === 0) {
         this.$q.notify({
           color: 'warning',
@@ -291,7 +297,7 @@ export default {
 
       // Verificar si los detalles de cada artículo son válidos
       for (let detalle of this.venta.detalles) {
-        if (!detalle.idArticulo || !detalle.idProducto || !detalle.idTalla || !detalle.idColor) {
+        if (!detalle.idArticulo || !detalle.nombreProducto || !detalle.talla || !detalle.color) {
           this.$q.notify({
             color: 'negative',
             message: 'Faltan datos importantes del artículo. Verifique que el artículo tenga todos los campos completos.',
@@ -303,7 +309,7 @@ export default {
 
       this.loading = true;
       try {
-        console.log('Realizando venta con datos:', this.venta);
+        console.log(`Procesando venta con estado: ${estado}`, this.venta);
 
         // Preparar los datos para enviar al backend
         const ventaData = {
@@ -316,7 +322,7 @@ export default {
           totalSinIva: this.venta.totalSinIVA,
           totalConIva: this.venta.totalConIVA,
           numeroTicket: this.venta.numeroTicket,
-          estado: this.venta.estado,
+          estado: estado, // Usar el estado pasado como parámetro
           fecha: this.venta.fecha,
           detallesVenta: this.venta.detalles.map(detalle => {
             return {
@@ -351,9 +357,14 @@ export default {
         const response = await this.$api.post('/ventas', ventaData);
         console.log('Respuesta del servidor:', response.data);
 
+        // Mensaje según el estado
+        const mensaje = estado === 'pendiente' 
+          ? 'Venta guardada como pendiente correctamente.' 
+          : 'Venta realizada correctamente.';
+
         this.$q.notify({
           color: 'positive',
-          message: 'Venta realizada correctamente.',
+          message: mensaje,
           icon: 'check',
         });
 
@@ -371,7 +382,7 @@ export default {
         };
       } catch (error) {
         // Error handling
-        console.error('Error al realizar la venta:', error);
+        console.error('Error al procesar la venta:', error);
 
         if (error.response) {
           console.log('Error data:', error.response.data);
@@ -383,7 +394,7 @@ export default {
           console.log('Error message:', error.message);
         }
 
-        let errorMessage = 'Hubo un error al realizar la venta.';
+        let errorMessage = 'Hubo un error al procesar la venta.';
 
         if (error.response && error.response.data) {
           errorMessage += ' ' + (error.response.data.message || JSON.stringify(error.response.data));

@@ -10,14 +10,17 @@ const routes = [
       { path: 'consultarsock', component: () => import('src/pages/ConsultarStockPage.vue') },
 
       // Ruta para Ventas
-      { path: 'ventas', component: () => import('pages/VentasPage.vue') },
+      { path: 'ventas', component: () => import('src/pages/VentasPage.vue') },
+
+      // Ruta para Gestión de Ventas
+      { path: 'gestionventas', component: () => import('src/pages/GestionVentasPage.vue') },
     ],
   },
 
   // Ruta de error 404
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    component: () => import('src/pages/ErrorNotFound.vue'),
   },
 ]
 

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import AgregarStock from '../pages/AgregarStockPage.vue';
 import Ventas from '../pages/VentasPage.vue';
 import ConsultarStock from '../pages/ConsultarStockPage.vue';
+import GestionVentasPage from '../pages/GestionVentasPage.vue';
 
 const routes = [
   {
@@ -24,9 +25,16 @@ const routes = [
     component: ConsultarStock,
   },
   {
+    path: '/gestionventas',  // Ruta para consultar ventas
+    name: 'GestionVentas',
+    component: GestionVentasPage,
+  },
+  {
     path: '/:catchAll(.*)*',  // Ruta de error 404
     component: () => import('pages/ErrorNotFound.vue'),
-  }
+  },
+
+
 ];
 
 const router = createRouter({

@@ -1,6 +1,5 @@
 package com.tiendatextil.repository;
 
-import java.util.Date;
 import java.util.List;
 
 

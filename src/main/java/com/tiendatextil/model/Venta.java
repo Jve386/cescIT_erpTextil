@@ -74,9 +74,4 @@ public class Venta {
         this.estado = estado;
         this.fecha = fecha;
     }
-
-    // Método para generar un número de ticket único usando UUID
-    private String generarNumeroTicket() {
-        return UUID.randomUUID().toString(); // Usamos UUID para generar un número único
-    }
 }
