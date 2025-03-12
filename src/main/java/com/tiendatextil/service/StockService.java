@@ -33,7 +33,7 @@ public class StockService {
         }
 
         // Buscar si ya existe el stock para ese artículo y almacén
-        Optional<Stock> existingStockOpt = stockRepository.findByAlmacenIdAndArticuloId(
+        Optional<Stock> existingStockOpt = stockRepository.findByArticulo_IdAndAlmacen_Id(
                 crearStockDTO.getIdAlmacen(), crearStockDTO.getIdArticulo());
 
         if (existingStockOpt.isPresent()) {
@@ -52,7 +52,7 @@ public class StockService {
 
     // Método para buscar si un stock existe
     public Optional<Stock> buscarStockExistente(Long idAlmacen, Long idArticulo) {
-        return stockRepository.findByAlmacenIdAndArticuloId(idAlmacen, idArticulo);
+        return stockRepository.findByArticulo_IdAndAlmacen_Id(idAlmacen, idArticulo);
     }
 
     // Método para sumar la cantidad de un stock existente

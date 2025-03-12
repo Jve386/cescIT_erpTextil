@@ -8,43 +8,24 @@
     <q-form @submit.prevent="realizarVenta" class="q-gutter-md q-mt-lg">
       <div class="row q-col-gutter-md">
         <div class="col-12 col-md-6">
-          <q-input
-            v-model="venta.idCliente"
-            label="ID Cliente"
-            type="number"
-            outlined
-            required
-          />
+          <q-input v-model="venta.idCliente" label="ID Cliente" type="number" outlined required @blur="buscarCliente" />
         </div>
         <div class="col-12 col-md-6">
-          <q-input
-            v-model="venta.nombreCliente"
-            label="Nombre del Cliente"
-            type="text"
-            outlined
-            required
-          />
+          <q-input v-model="venta.nombreCliente" label="Nombre del Cliente" type="text" outlined required
+            :loading="cargandoCliente" />
         </div>
       </div>
 
       <div class="row q-col-gutter-md">
-        <div class="col-12 col-md-6">
-          <q-input
-            v-model="venta.fecha"
-            label="Fecha de la Venta"
-            type="date"
-            outlined
-            required
-          />
+        <div class="col-12 col-md-4">
+          <q-input v-model="venta.fecha" label="Fecha de la Venta" type="date" outlined required />
         </div>
-        <div class="col-12 col-md-6">
-          <q-input
-            v-model="venta.numeroTicket"
-            label="Número de Ticket"
-            type="text"
-            outlined
-            required
-          />
+        <div class="col-12 col-md-4">
+          <q-input v-model="venta.numeroTicket" label="Número de Ticket" type="text" outlined required />
+        </div>
+        <div class="col-12 col-md-4">
+          <q-select v-model="venta.idAlmacen" :options="almacenes" option-value="id" option-label="nombre"
+            label="Almacén" outlined required emit-value map-options :loading="cargandoAlmacenes" />
         </div>
       </div>
 
@@ -57,93 +38,46 @@
             <q-card-section>
               <div class="row q-col-gutter-md">
                 <div class="col-12 col-md-6">
-                  <q-input
-                    v-model.number="detalle.idArticulo"
-                    label="ID Artículo"
-                    type="number"
-                    outlined
-                    required
-                  />
+                  <q-input v-model.number="detalle.idArticulo" label="ID Artículo" type="number" outlined required
+                    @blur="buscarArticulo(index)" :loading="detalle.cargando" />
                 </div>
                 <div class="col-12 col-md-6">
-                  <q-input
-                    v-model="detalle.nombreProducto"
-                    label="Nombre del Producto"
-                    type="text"
-                    outlined
-                    required
-                  />
+                  <q-input v-model="detalle.nombreProducto" label="Nombre del Producto" type="text" outlined required
+                    :readonly="detalle.datosAutomaticos" />
                 </div>
               </div>
 
               <div class="row q-col-gutter-md q-mt-sm">
                 <div class="col-6 col-md-3">
-                  <q-input
-                    v-model="detalle.talla"
-                    label="Talla"
-                    type="text"
-                    outlined
-                  />
+                  <q-input v-model="detalle.talla" label="Talla" type="text" outlined
+                    :readonly="detalle.datosAutomaticos" />
                 </div>
                 <div class="col-6 col-md-3">
-                  <q-input
-                    v-model="detalle.color"
-                    label="Color"
-                    type="text"
-                    outlined
-                  />
+                  <q-input v-model="detalle.color" label="Color" type="text" outlined
+                    :readonly="detalle.datosAutomaticos" />
                 </div>
                 <div class="col-6 col-md-2">
-                  <q-input
-                    v-model.number="detalle.cantidad"
-                    label="Cantidad"
-                    type="number"
-                    outlined
-                    required
-                    @change="calcularPrecioTotal(index)"
-                  />
+                  <q-input v-model.number="detalle.cantidad" label="Cantidad" type="number" outlined required
+                    @change="calcularPrecioTotal(index)" />
                 </div>
                 <div class="col-6 col-md-2">
-                  <q-input
-                    v-model.number="detalle.precioUnitario"
-                    label="Precio Unit."
-                    type="number"
-                    outlined
-                    required
-                    @change="calcularPrecioTotal(index)"
-                  />
+                  <q-input v-model.number="detalle.precioUnitario" label="Precio Unit." type="number" outlined required
+                    @change="calcularPrecioTotal(index)" :readonly="detalle.datosAutomaticos" />
                 </div>
                 <div class="col-12 col-md-2">
-                  <q-input
-                    v-model.number="detalle.precioTotal"
-                    label="Precio Total"
-                    type="number"
-                    outlined
-                    readonly
-                  />
+                  <q-input v-model.number="detalle.precioTotal" label="Precio Total" type="number" outlined readonly />
                 </div>
               </div>
             </q-card-section>
 
             <q-card-actions align="right">
-              <q-btn
-                flat
-                color="negative"
-                icon="delete"
-                @click="eliminarDetalle(index)"
-                label="Eliminar"
-              />
+              <q-btn flat color="negative" icon="delete" @click="eliminarDetalle(index)" label="Eliminar" />
             </q-card-actions>
           </q-card>
         </div>
 
         <div class="q-mt-md">
-          <q-btn
-            color="primary"
-            icon="add"
-            label="Añadir Artículo"
-            @click="agregarDetalle"
-          />
+          <q-btn color="primary" icon="add" label="Añadir Artículo" @click="agregarDetalle" />
         </div>
       </div>
 
@@ -152,36 +86,18 @@
         <q-card-section>
           <div class="row q-col-gutter-md">
             <div class="col-12 col-md-6">
-              <q-input
-                v-model.number="venta.totalSinIVA"
-                label="Total sin IVA"
-                type="number"
-                outlined
-                readonly
-              />
+              <q-input v-model.number="venta.totalSinIVA" label="Total sin IVA" type="number" outlined readonly />
             </div>
             <div class="col-12 col-md-6">
-              <q-input
-                v-model.number="venta.totalConIVA"
-                label="Total con IVA (21%)"
-                type="number"
-                outlined
-                readonly
-              />
+              <q-input v-model.number="venta.totalConIVA" label="Total con IVA (21%)" type="number" outlined readonly />
             </div>
           </div>
         </q-card-section>
       </q-card>
 
       <div class="q-mt-lg">
-        <q-btn
-          label="Realizar Venta"
-          color="secondary"
-          type="submit"
-          icon="shopping_cart"
-          :loading="loading"
-          :disable="venta.detalles.length === 0"
-        />
+        <q-btn label="Realizar Venta" color="secondary" type="submit" icon="shopping_cart" :loading="loading"
+          :disable="venta.detalles.length === 0" />
       </div>
     </q-form>
   </q-page>
@@ -192,12 +108,21 @@ export default {
   data() {
     return {
       loading: false,
+      cargandoCliente: false,
+      cargandoAlmacenes: false,
+      maxRetries: 5,
+      retryDelay: 2000,
+      almacenes: [
+        { id: 1, nombre: 'Tienda Central' },
+        { id: 2, nombre: 'Almacén Norte' }
+      ],
       venta: {
         idCliente: null,
         nombreCliente: '',
         fecha: '',
         numeroTicket: '',
-        estado: 'pendiente', // Por defecto en pendiente
+        estado: 'pendiente',
+        idAlmacen: 1,
         totalSinIVA: 0,
         totalConIVA: 0,
         detalles: []
@@ -213,7 +138,9 @@ export default {
         color: '',
         cantidad: 1,
         precioUnitario: 0,
-        precioTotal: 0
+        precioTotal: 0,
+        cargando: false,
+        datosAutomaticos: false
       });
     },
 
@@ -238,6 +165,120 @@ export default {
       this.venta.totalConIVA = this.venta.totalSinIVA * 1.21;
     },
 
+    async cargarAlmacenes(retryCount = 0) {
+      this.cargandoAlmacenes = true;
+      try {
+        const response = await this.$api.get('/almacenes');
+        if (response.data && response.data.length > 0) {
+          this.almacenes = response.data;
+        }
+        this.cargandoAlmacenes = false;
+      } catch (error) {
+        console.error('Error al cargar almacenes:', error);
+
+        // Si aún no hemos alcanzado el máximo de intentos, reintentamos
+        if (retryCount < this.maxRetries) {
+          console.log(`Reintentando cargar almacenes en ${this.retryDelay / 1000} segundos... (Intento ${retryCount + 1}/${this.maxRetries})`);
+          this.cargandoAlmacenes = false;
+
+          // Esperar antes de reintentar
+          await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+
+          // Reintentar la carga
+          await this.cargarAlmacenes(retryCount + 1);
+        } else {
+          this.cargandoAlmacenes = false;
+          console.log('Se alcanzó el máximo de intentos. Usando almacenes por defecto.');
+          // Notificar al usuario
+          this.$q.notify({
+            color: 'warning',
+            message: 'No se pudieron cargar los almacenes. Usando valores por defecto.',
+            timeout: 5000
+          });
+        }
+      }
+    },
+
+    async buscarCliente() {
+      if (!this.venta.idCliente) return;
+
+      this.cargandoCliente = true;
+      try {
+        console.log('Buscando cliente con ID:', this.venta.idCliente);
+        // Use the specific endpoint for getting client names
+        const response = await this.$api.get(`/clientes/nombre/${this.venta.idCliente}`);
+        console.log('Respuesta del servidor:', response.data);
+        if (response.data) {
+          // The response is just the name as a string
+          this.venta.nombreCliente = response.data;
+        }
+      } catch (error) {
+        console.error('Error al buscar cliente:', error);
+        console.log('Detalles del error:', error.response ? error.response.data : 'No hay detalles');
+        this.$q.notify({
+          color: 'negative',
+          message: 'No se encontró el cliente con ese ID',
+          icon: 'warning'
+        });
+      } finally {
+        this.cargandoCliente = false;
+      }
+    },
+
+    async buscarArticulo(index) {
+      const detalle = this.venta.detalles[index];
+      if (!detalle.idArticulo) return;
+
+      detalle.cargando = true;
+      try {
+        console.log('Buscando artículo con ID:', detalle.idArticulo);
+        const response = await this.$api.get(`/articulos/${detalle.idArticulo}`);
+        console.log('Respuesta del servidor:', response.data);
+
+        if (response.data) {
+          const articulo = response.data;
+
+          // Suponiendo que la respuesta contiene los datos estructurados correctamente
+          if (articulo.producto && articulo.talla && articulo.color) {
+            // Asignar el ID del producto, talla y color directamente
+            detalle.idProducto = articulo.producto.id;
+            detalle.idTalla = articulo.talla.id;
+            detalle.idColor = articulo.color.id;
+
+            // Asignar el nombre del producto, talla y color
+            detalle.nombreProducto = articulo.producto.nombre;
+            detalle.talla = articulo.talla.talla;
+            detalle.color = articulo.color.color;
+            detalle.precioUnitario = articulo.precio;
+            detalle.datosAutomaticos = true;
+          } else {
+            console.error('El artículo no tiene la estructura esperada:', articulo);
+            this.$q.notify({
+              color: 'warning',
+              message: 'El artículo no tiene todos los datos necesarios',
+              icon: 'warning'
+            });
+            detalle.datosAutomaticos = false;
+            return;
+          }
+
+          // Recalcular el precio total
+          this.calcularPrecioTotal(index);
+        }
+      } catch (error) {
+        console.error('Error al buscar artículo:', error);
+        console.log('Detalles del error:', error.response ? error.response.data : 'No hay detalles');
+        detalle.datosAutomaticos = false;
+        this.$q.notify({
+          color: 'negative',
+          message: 'No se encontró el artículo con ese ID',
+          icon: 'warning'
+        });
+      } finally {
+        detalle.cargando = false;
+      }
+    },
+
     async realizarVenta() {
       if (this.venta.detalles.length === 0) {
         this.$q.notify({
@@ -248,9 +289,68 @@ export default {
         return;
       }
 
+      // Verificar si los detalles de cada artículo son válidos
+      for (let detalle of this.venta.detalles) {
+        if (!detalle.idArticulo || !detalle.idProducto || !detalle.idTalla || !detalle.idColor) {
+          this.$q.notify({
+            color: 'negative',
+            message: 'Faltan datos importantes del artículo. Verifique que el artículo tenga todos los campos completos.',
+            icon: 'warning',
+          });
+          return;
+        }
+      }
+
       this.loading = true;
       try {
-        await this.$api.post('/api/ventas', this.venta);
+        console.log('Realizando venta con datos:', this.venta);
+
+        // Preparar los datos para enviar al backend
+        const ventaData = {
+          cliente: {
+            id: parseInt(this.venta.idCliente)
+          },
+          almacen: {
+            id: parseInt(this.venta.idAlmacen)
+          },
+          totalSinIva: this.venta.totalSinIVA,
+          totalConIva: this.venta.totalConIVA,
+          numeroTicket: this.venta.numeroTicket,
+          estado: this.venta.estado,
+          fecha: this.venta.fecha,
+          detallesVenta: this.venta.detalles.map(detalle => {
+            return {
+              articulo: {
+                id: parseInt(detalle.idArticulo),
+                producto: {
+                  id: parseInt(detalle.idProducto),
+                  nombre: detalle.nombreProducto
+                },
+                talla: {
+                  id: parseInt(detalle.idTalla),
+                  talla: detalle.talla 
+                },
+                color: {
+                  id: parseInt(detalle.idColor),
+                  color: detalle.color 
+                },
+                precio: detalle.precioUnitario
+              },
+              cantidad: detalle.cantidad,
+              precioUnitario: detalle.precioUnitario,
+              precioSinIva: detalle.precioTotal,
+              iva: detalle.precioTotal * 0.21,
+              precioTotal: detalle.precioTotal * 1.21
+            };
+          })
+        };
+
+        console.log('Datos preparados para enviar:', ventaData);
+        console.log('JSON stringified:', JSON.stringify(ventaData));
+
+        const response = await this.$api.post('/ventas', ventaData);
+        console.log('Respuesta del servidor:', response.data);
+
         this.$q.notify({
           color: 'positive',
           message: 'Venta realizada correctamente.',
@@ -261,18 +361,30 @@ export default {
         this.venta = {
           idCliente: null,
           nombreCliente: '',
-          fecha: '',
-          numeroTicket: '',
+          fecha: this.obtenerFechaActual(),
+          numeroTicket: this.generarNumeroTicket(),
           estado: 'pendiente',
+          idAlmacen: 1,
           totalSinIVA: 0,
           totalConIVA: 0,
           detalles: []
         };
       } catch (error) {
+        // Error handling
         console.error('Error al realizar la venta:', error);
+
+        if (error.response) {
+          console.log('Error data:', error.response.data);
+          console.log('Error status:', error.response.status);
+          console.log('Error headers:', error.response.headers);
+        } else if (error.request) {
+          console.log('Error request:', error.request);
+        } else {
+          console.log('Error message:', error.message);
+        }
+
         let errorMessage = 'Hubo un error al realizar la venta.';
 
-        // Si hay detalles del error, mostrarlos
         if (error.response && error.response.data) {
           errorMessage += ' ' + (error.response.data.message || JSON.stringify(error.response.data));
         }
@@ -285,23 +397,30 @@ export default {
       } finally {
         this.loading = false;
       }
-    }
-  },
-  created() {
-    // Si estamos en un día actual, establecer la fecha actual
-    if (!this.venta.fecha) {
+    },
+
+    obtenerFechaActual() {
       const today = new Date();
       const year = today.getFullYear();
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const day = String(today.getDate()).padStart(2, '0');
-      this.venta.fecha = `${year}-${month}-${day}`;
+      return `${year}-${month}-${day}`;
+    },
+
+    generarNumeroTicket() {
+      const timestamp = new Date().getTime();
+      return `TK-${timestamp}`;
     }
+  },
+  created() {
+    // Establecer la fecha actual
+    this.venta.fecha = this.obtenerFechaActual();
 
     // Generar un número de ticket por defecto basado en la fecha y hora actual
-    if (!this.venta.numeroTicket) {
-      const timestamp = new Date().getTime();
-      this.venta.numeroTicket = `TK-${timestamp}`;
-    }
+    this.venta.numeroTicket = this.generarNumeroTicket();
+
+    // Cargar los almacenes disponibles con reintentos
+    this.cargarAlmacenes();
   }
 };
 </script>

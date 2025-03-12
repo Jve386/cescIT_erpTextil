@@ -16,5 +16,9 @@ public class VentaDTO {
     private Double totalConIVA;
     private String numeroTicket;
     private String estado;
-    private List<DetalleVentaDTO> detalles;
+    private List<DetalleVentaDTO> detalles; 
+
+    // Constructor vacío necesario para Jackson
+    public VentaDTO() {
+    }
 }

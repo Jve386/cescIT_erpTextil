@@ -11,4 +11,8 @@ public class ArticuloDTO {
     private String talla;
     private String color;
     private Double precioCoste;
+
+    // Constructor vacío necesario para Jackson
+    public ArticuloDTO() {
+    }    
 }

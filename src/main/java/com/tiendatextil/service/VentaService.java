@@ -7,79 +7,106 @@ import com.tiendatextil.model.Venta;
 import com.tiendatextil.repository.ArticuloRepository;
 import com.tiendatextil.repository.StockRepository;
 import com.tiendatextil.repository.VentaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.stream.Collectors;
+import com.tiendatextil.dto.VentaDTO;
+import com.tiendatextil.dto.DetalleVentaDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class VentaService {
-
+    private static final Logger logger = LoggerFactory.getLogger(VentaService.class);
+    private final ObjectMapper objectMapper;
     private final VentaRepository ventaRepository;
     private final ArticuloRepository articuloRepository;
     private final StockRepository stockRepository;
+    
 
     @Autowired
-    public VentaService(VentaRepository ventaRepository, ArticuloRepository articuloRepository, StockRepository stockRepository) {
+    public VentaService(VentaRepository ventaRepository, ArticuloRepository articuloRepository,
+            StockRepository stockRepository) {
         this.ventaRepository = ventaRepository;
         this.articuloRepository = articuloRepository;
         this.stockRepository = stockRepository;
+        this.objectMapper = new ObjectMapper();
     }
 
     // Crear una nueva venta
+    @Transactional
     public Venta crearVenta(Venta venta) {
-        // Para cada detalle de venta, obtenemos el artículo, calculamos el precio y actualizamos el stock
+        logger.info("Iniciando creación de venta con {} artículos", venta.getDetallesVenta().size());
+
+        double totalSinIva = 0;
+        double totalConIva = 0;
+
         for (DetalleVenta detalle : venta.getDetallesVenta()) {
-            // Consultar el artículo utilizando nombre del producto, talla y color
+            logger.info("Procesando detalle de venta: {}", detalle);
+
+            // Buscar artículo
             Optional<Articulo> articuloOpt = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor(
                     detalle.getArticulo().getProducto().getNombre(),
                     detalle.getArticulo().getTalla().getTalla(),
-                    detalle.getArticulo().getColor().getColor()
-            );
+                    detalle.getArticulo().getColor().getColor());
 
-            if (articuloOpt.isPresent()) {
-                Articulo articulo = articuloOpt.get();
-
-                // Establecer el precio unitario del detalle de venta con el precio del artículo
-                detalle.setPrecioUnitario(articulo.getPrecio());
-
-                // Calcular el precio total sin IVA
-                double precioSinIva = detalle.getPrecioUnitario() * detalle.getCantidad();
-                detalle.setPrecioSinIva(precioSinIva);
-
-                // Calcular el IVA (21% por ejemplo)
-                double iva = precioSinIva * 0.21;  // Si es 21% de IVA
-                detalle.setIva(iva);
-
-                // Calcular el precio total (sin IVA + IVA)
-                detalle.setPrecioTotal(precioSinIva + iva);
-
-                // Obtener el stock del artículo
-                List<Stock> stocks = stockRepository.findByArticuloId(articulo.getId()); // Buscar por ID del artículo
-
-                if (stocks.isEmpty()) {
-                    throw new RuntimeException("Stock no encontrado para el artículo " + articulo.getId());
-                }
-
-                // Aquí puedes agregar lógica adicional para manejar el stock si hay múltiples almacenes,
-                // por ahora restamos del primer stock disponible.
-                Stock stock = stocks.get(0); // Obtener el primer stock disponible
-
-                if (stock.getCantidad() < detalle.getCantidad()) {
-                    throw new RuntimeException("No hay suficiente stock para el artículo " + articulo.getId());
-                }
-
-                // Actualizar el stock: restamos la cantidad vendida
-                stock.setCantidad(stock.getCantidad() - detalle.getCantidad());
-                stockRepository.save(stock); // Guardar el stock actualizado
+            if (!articuloOpt.isPresent()) {
+                logger.error("Artículo no encontrado: {}", detalle.getArticulo());
+                throw new RuntimeException("Artículo no encontrado");
             }
+
+            Articulo articulo = articuloOpt.get();
+            logger.info("Artículo encontrado: {}", articulo);
+
+            // Verificar stock
+            Optional<Stock> stockOpt = stockRepository.findByArticulo_IdAndAlmacen_Id(
+                    articulo.getId(),
+                    venta.getAlmacen().getId());
+
+            if (!stockOpt.isPresent() || stockOpt.get().getCantidad() < detalle.getCantidad()) {
+                logger.error("No hay suficiente stock para el artículo: {}", articulo);
+                throw new RuntimeException("No hay suficiente stock");
+            }
+
+            // Actualizar stock
+            Stock stock = stockOpt.get();
+            stock.setCantidad(stock.getCantidad() - detalle.getCantidad());
+            stockRepository.save(stock);
+            logger.info("Stock actualizado para el artículo: {}", articulo);
+
+            // Calcular precios
+            double precioSinIva = detalle.getPrecioUnitario() * detalle.getCantidad();
+            double iva = precioSinIva * 0.21;
+            double precioTotal = precioSinIva + iva;
+
+            // Actualizar detalle
+            detalle.setPrecioSinIva(precioSinIva);
+            detalle.setIva(iva);
+            detalle.setPrecioTotal(precioTotal);
+            detalle.setArticulo(articulo);
+            detalle.setVenta(venta);
+
+            // Acumular totales
+            totalSinIva += precioSinIva;
+            totalConIva += precioTotal;
+
+            // Asegurar de que el detalle se asocie correctamente a la venta
+            venta.getDetallesVenta().add(detalle);
         }
 
-        // Guardar la venta y retornar la venta creada
-        return ventaRepository.save(venta);
+        // Guardar venta
+        venta.setTotalSinIva(totalSinIva);
+        venta.setTotalConIva(totalConIva);
+        Venta ventaGuardada = ventaRepository.save(venta);
+        logger.info("Venta guardada exitosamente: {}", ventaGuardada);
+        return ventaGuardada;
     }
-
 
     // Obtener todas las ventas
     public List<Venta> obtenerVentas() {
@@ -108,4 +135,85 @@ public class VentaService {
             throw new RuntimeException("Venta no encontrada");
         }
     }
+
+    /**
+     * Obtiene todas las ventas como DTOs
+     */
+    public List<VentaDTO> obtenerVentasDTO() {
+        List<Venta> ventas = ventaRepository.findAll();
+        // Serialize and log ventas
+        try {
+            String json = objectMapper.writeValueAsString(ventas);
+            System.out.println("Serialized Ventas: " + json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return ventas.stream()
+                .map(this::convertToVentaDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene una venta por ID como DTO
+     */
+    public Optional<VentaDTO> obtenerVentaDTOPorId(Long id) {
+        return ventaRepository.findById(id)
+                .map(this::convertToVentaDTO);
+    }
+
+    /**
+     * Convierte una Venta a VentaDTO
+     */
+    private VentaDTO convertToVentaDTO(Venta venta) {
+        System.out.println("Converting Venta: " + venta.getId()); 
+        VentaDTO dto = new VentaDTO();
+        dto.setId(venta.getId());
+        if (venta.getCliente() != null) {
+            dto.setIdCliente(venta.getCliente().getId());
+            dto.setNombreCliente(venta.getCliente().getNombre());
+        }
+        dto.setFecha(venta.getFecha() != null ? venta.getFecha().toString() : null);
+        dto.setTotalSinIVA(venta.getTotalSinIva());
+        dto.setTotalConIVA(venta.getTotalConIva());
+        dto.setNumeroTicket(venta.getNumeroTicket());
+        dto.setEstado(venta.getEstado());
+
+        if (venta.getDetallesVenta() != null) {
+            List<DetalleVentaDTO> detallesDTO = venta.getDetallesVenta().stream()
+                    .map(this::convertToDetalleVentaDTO)
+                    .collect(Collectors.toList());
+            dto.setDetalles(detallesDTO);
+        }
+
+        // Log the populated DTO
+        System.out.println("Converted VentaDTO: " + dto);
+
+        return dto;
+    }
+
+    /**
+     * Convierte un DetalleVenta a DetalleVentaDTO
+     */
+    private DetalleVentaDTO convertToDetalleVentaDTO(DetalleVenta detalle) {
+        System.out.println("Converting DetalleVenta: " + detalle.getId()); 
+        DetalleVentaDTO dto = new DetalleVentaDTO();
+        if (detalle.getArticulo() != null) {
+            dto.setIdArticulo(detalle.getArticulo().getId());
+            if (detalle.getArticulo().getProducto() != null) {
+                dto.setNombreProducto(detalle.getArticulo().getProducto().getNombre());
+            }
+            if (detalle.getArticulo().getTalla() != null) {
+                dto.setTalla(detalle.getArticulo().getTalla().getTalla());
+            }
+            if (detalle.getArticulo().getColor() != null) {
+                dto.setColor(detalle.getArticulo().getColor().getColor());
+            }
+        }
+        dto.setCantidad(detalle.getCantidad());
+        dto.setPrecioUnitario(detalle.getPrecioUnitario());
+        dto.setPrecioTotal(detalle.getPrecioTotal());
+
+        return dto;
+    }
+
 }
