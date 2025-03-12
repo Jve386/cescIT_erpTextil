@@ -13,4 +13,8 @@ public class DetalleVentaDTO {
     private int cantidad;
     private Double precioUnitario;
     private Double precioTotal;
+
+    // Constructor vacío necesario para Jackson
+    public DetalleVentaDTO() {
+    }
 }

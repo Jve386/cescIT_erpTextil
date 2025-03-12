@@ -1,4 +1,3 @@
-// DetalleVentaService
 package com.tiendatextil.service;
 
 import com.tiendatextil.model.DetalleVenta;
@@ -8,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class DetalleVentaService {
@@ -19,6 +19,16 @@ public class DetalleVentaService {
         this.detalleVentaRepository = detalleVentaRepository;
     }
 
+    // Obtener todos los detalles de venta
+    public List<DetalleVenta> obtenerDetallesVenta() {
+        return detalleVentaRepository.findAllWithDetails();
+    }
+
+    // Obtener un detalle de venta por su ID
+    public Optional<DetalleVenta> obtenerDetalleVentaPorId(Long id) {
+        return detalleVentaRepository.findById(id);
+    }
+
     // Crear un nuevo detalle de venta
     public DetalleVenta crearDetalleVenta(DetalleVenta detalleVenta) {
         // Calcular los totales (sin IVA, IVA, precio total)
@@ -26,14 +36,9 @@ public class DetalleVentaService {
         return detalleVentaRepository.save(detalleVenta);
     }
 
-    // Obtener todos los detalles de venta
-    public List<DetalleVenta> obtenerDetallesVenta() {
-        return detalleVentaRepository.findAll();
-    }
-
-    // Obtener un detalle de venta por su ID
-    public Optional<DetalleVenta> obtenerDetalleVentaPorId(Long id) {
-        return detalleVentaRepository.findById(id);
+    // Obtener detalles de venta por ID de venta
+    public List<DetalleVenta> obtenerDetallesPorVenta(Long id) {
+        return detalleVentaRepository.findByVentaId(id);
     }
 
     // Actualizar un detalle de venta
@@ -56,7 +61,7 @@ public class DetalleVentaService {
         }
     }
 
-    // Metodo para calcular los totales (precio sin IVA, IVA, precio total)
+    // Método para calcular los totales (precio sin IVA, IVA, precio total)
     private void calcularTotales(DetalleVenta detalleVenta) {
         // Calcular precio sin IVA
         double precioSinIva = detalleVenta.getPrecioUnitario() * detalleVenta.getCantidad();
