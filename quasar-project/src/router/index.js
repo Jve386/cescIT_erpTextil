@@ -1,30 +1,45 @@
-import { defineRouter } from '#q-app/wrappers'
-import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
-import routes from './routes'
+import { createRouter, createWebHistory } from 'vue-router';
+import AgregarStock from '../pages/AgregarStockPage.vue';
+import Ventas from '../pages/VentasPage.vue';
+import ConsultarStock from '../pages/ConsultarStockPage.vue';
+import GestionVentasPage from '../pages/GestionVentasPage.vue';
 
-/*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
- */
+const routes = [
+  {
+    path: '/',
+    redirect: '/agregarstock',  // Redirige a /agregarstock
+  },
+  {
+    path: '/agregarstock',  // Ruta de Agregar Stock
+    name: 'AgregarStock',
+    component: AgregarStock, // Página para agregar stock
+  },
+  {
+    path: '/ventas',  // Ruta de Ventas
+    name: 'Ventas',
+    component: Ventas,
+  },
+  {
+    path: '/consultar-stock',  // Ruta para consultar stock
+    name: 'ConsultarStock',
+    component: ConsultarStock,
+  },
+  {
+    path: '/gestionventas',  // Ruta para consultar ventas
+    name: 'GestionVentas',
+    component: GestionVentasPage,
+  },
+  {
+    path: '/:catchAll(.*)*',  // Ruta de error 404
+    component: () => import('pages/ErrorNotFound.vue'),
+  },
 
-export default defineRouter(function (/* { store, ssrContext } */) {
-  const createHistory = process.env.SERVER
-    ? createMemoryHistory
-    : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory)
 
-  const Router = createRouter({
-    scrollBehavior: () => ({ left: 0, top: 0 }),
-    routes,
+];
 
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
-    history: createHistory(process.env.VUE_ROUTER_BASE)
-  })
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes,
+});
 
-  return Router
-})
+export default router;

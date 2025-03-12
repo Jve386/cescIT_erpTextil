@@ -2,7 +2,6 @@ package com.tiendatextil.model;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import javax.persistence.*;
 
 @Getter
@@ -22,15 +21,13 @@ public class Almacen {
     @Column(nullable = false)
     private String direccion;
 
-    // Ahora tipoAlmacen es simplemente un String, no es una relación con otra entidad.
-    @Column(nullable = false)
-    private String tipoAlmacen;
+    @Enumerated(EnumType.STRING)  // ¡Asegura que esto esté presente!
+    @Column(nullable = false, name = "tipo_almacen")
+    private TipoAlmacen tipoAlmacen;
 
-    // Constructor sin parámetros
     public Almacen() {}
 
-    // Constructor con parámetros
-    public Almacen(String nombre, String direccion, String tipoAlmacen) {
+    public Almacen(String nombre, String direccion, TipoAlmacen tipoAlmacen) {
         this.nombre = nombre;
         this.direccion = direccion;
         this.tipoAlmacen = tipoAlmacen;

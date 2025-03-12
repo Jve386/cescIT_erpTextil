@@ -1,6 +1,7 @@
 package com.tiendatextil.service;
 
 import com.tiendatextil.model.Almacen;
+import com.tiendatextil.model.TipoAlmacen;
 import com.tiendatextil.repository.AlmacenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,10 +21,7 @@ public class AlmacenService {
 
     // Crear un nuevo almacén
     public Almacen crearAlmacen(Almacen almacen) {
-        // Validación para asegurar que el tipo de almacén sea válido
-        if (almacen.getTipoAlmacen() == null || (!almacen.getTipoAlmacen().equals("Tienda") && !almacen.getTipoAlmacen().equals("Almacén"))) {
-            throw new IllegalArgumentException("Tipo de almacén inválido");
-        }
+        validarTipoAlmacen(almacen.getTipoAlmacen());
         return almacenRepository.save(almacen);
     }
 
@@ -39,24 +37,27 @@ public class AlmacenService {
 
     // Actualizar un almacén
     public Almacen actualizarAlmacen(Long id, Almacen almacen) {
-        if (almacen.getTipoAlmacen() == null || (!almacen.getTipoAlmacen().equals("Tienda") && !almacen.getTipoAlmacen().equals("Almacén"))) {
-            throw new IllegalArgumentException("Tipo de almacén inválido");
-        }
-
-        if (almacenRepository.existsById(id)) {
-            almacen.setId(id);
-            return almacenRepository.save(almacen);
-        } else {
+        if (!almacenRepository.existsById(id)) {
             throw new RuntimeException("Almacén no encontrado");
         }
+        validarTipoAlmacen(almacen.getTipoAlmacen());
+        almacen.setId(id);
+        return almacenRepository.save(almacen);
     }
 
     // Eliminar un almacén
     public void eliminarAlmacen(Long id) {
-        if (almacenRepository.existsById(id)) {
-            almacenRepository.deleteById(id);
-        } else {
+        if (!almacenRepository.existsById(id)) {
             throw new RuntimeException("Almacén no encontrado");
+        }
+        almacenRepository.deleteById(id);
+    }
+
+    // Validar el tipo de almacén
+    private void validarTipoAlmacen(TipoAlmacen tipoAlmacen) {
+        if (tipoAlmacen == null ||
+                (tipoAlmacen != TipoAlmacen.TIENDA && tipoAlmacen != TipoAlmacen.ALMACEN)) {
+            throw new IllegalArgumentException("Tipo de almacén inválido");
         }
     }
 }

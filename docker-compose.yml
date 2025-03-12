@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-# Servicio para la base de datos
+  # Servicio para la base de datos
   crud-db:
     image: postgres:13
     container_name: crud-db
@@ -23,7 +23,7 @@ services:
     env_file:
       - .env
 
-# Servicio para el backend (Spring Boot)
+  # Servicio para el backend (Spring Boot)
   app:
     build:
       context: .
@@ -42,8 +42,10 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    # Script wait-for-it.sh para asegurar que la base de datos está lista antes de arrancar el backend
+    entrypoint: ["./wait-for-it.sh", "crud-db:5432", "--", "java", "-jar", "/app/tienda-textil.jar"]
 
-# Servicio para el frontend (Quasar)
+  # Servicio para el frontend (Quasar)
   front:
     build:
       context: ./quasar-project

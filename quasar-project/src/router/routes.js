@@ -1,17 +1,26 @@
 const routes = [
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('layouts/MainLayout.vue'),  // Layout principal
     children: [
-      // Ruta por defecto de la página principal
-      { path: '', component: () => import('pages/ArticulosPage.vue') },  // ARTICULOS
+      // Ruta para Agregar Stock
+      { path: 'agregarstock', component: () => import('src/pages/AgregarStockPage.vue') },
+
+      // Ruta para Consultar Stock
+      { path: 'consultarsock', component: () => import('src/pages/ConsultarStockPage.vue') },
+
+      // Ruta para Ventas
+      { path: 'ventas', component: () => import('src/pages/VentasPage.vue') },
+
+      // Ruta para Gestión de Ventas
+      { path: 'gestionventas', component: () => import('src/pages/GestionVentasPage.vue') },
     ],
   },
 
   // Ruta de error 404
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    component: () => import('src/pages/ErrorNotFound.vue'),
   },
 ]
 
