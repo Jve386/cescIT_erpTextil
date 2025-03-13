@@ -11,6 +11,8 @@ public class VentaDTO {
     private Long id;
     private Long idCliente;
     private String nombreCliente;
+    private Long idAlmacen;
+    private String nombreAlmacen;
     private String fecha;
     private Double totalSinIVA;
     private Double totalConIVA;

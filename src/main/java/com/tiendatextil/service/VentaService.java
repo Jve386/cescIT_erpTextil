@@ -205,12 +205,57 @@ public class VentaService {
     }
 
     // Eliminar una venta
+    @Transactional
     public void eliminarVenta(Long id) {
-        if (ventaRepository.existsById(id)) {
-            ventaRepository.deleteById(id);
-        } else {
-            throw new RuntimeException("Venta no encontrada");
+        logger.info("Iniciando eliminación de venta con ID: {}", id);
+        
+        Optional<Venta> ventaOpt = ventaRepository.findById(id);
+        if (!ventaOpt.isPresent()) {
+            String errorMsg = "Venta no encontrada con ID: " + id;
+            logger.error(errorMsg);
+            throw new RuntimeException(errorMsg);
         }
+        
+        Venta venta = ventaOpt.get();
+        
+        // Si la venta está completada, restaurar el stock
+        if ("completada".equals(venta.getEstado())) {
+            logger.info("Venta completada, restaurando stock para {} artículos", venta.getDetallesVenta().size());
+            
+            for (DetalleVenta detalle : venta.getDetallesVenta()) {
+                Articulo articulo = detalle.getArticulo();
+                if (articulo == null) {
+                    String errorMsg = "Detalle de venta sin artículo asociado";
+                    logger.error(errorMsg);
+                    throw new RuntimeException(errorMsg);
+                }
+                
+                Long articuloId = articulo.getId();
+                Long almacenId = venta.getAlmacen().getId();
+                logger.info("Restaurando stock para artículo ID: {} en almacén ID: {}", articuloId, almacenId);
+                
+                Optional<Stock> stockOpt = stockRepository.findByArticulo_IdAndAlmacen_Id(articuloId, almacenId);
+                
+                if (!stockOpt.isPresent()) {
+                    String errorMsg = "No se encontró el stock para el artículo: " + articulo.getProducto().getNombre() + 
+                                     " en el almacén ID: " + almacenId;
+                    logger.error(errorMsg);
+                    throw new RuntimeException(errorMsg);
+                }
+                
+                Stock stock = stockOpt.get();
+                // Restaurar la cantidad vendida al stock
+                stock.setCantidad(stock.getCantidad() + detalle.getCantidad());
+                stockRepository.save(stock);
+                logger.info("Stock restaurado para el artículo: {}. Nueva cantidad: {}", articulo, stock.getCantidad());
+            }
+        } else {
+            logger.info("Venta en estado 'pendiente', no es necesario restaurar stock");
+        }
+        
+        // Eliminar la venta
+        ventaRepository.deleteById(id);
+        logger.info("Venta eliminada exitosamente");
     }
 
     /**
@@ -248,6 +293,10 @@ public class VentaService {
         if (venta.getCliente() != null) {
             dto.setIdCliente(venta.getCliente().getId());
             dto.setNombreCliente(venta.getCliente().getNombre());
+        }
+        if (venta.getAlmacen() != null) {
+            dto.setIdAlmacen(venta.getAlmacen().getId());
+            dto.setNombreAlmacen(venta.getAlmacen().getNombre());
         }
         dto.setFecha(venta.getFecha() != null ? venta.getFecha().toString() : null);
         dto.setTotalSinIVA(venta.getTotalSinIva());

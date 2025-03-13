@@ -1,9 +1,8 @@
 package com.tiendatextil.controller;
 
-import com.tiendatextil.model.Cliente;
+import com.tiendatextil.dto.ClienteDTO;
 import com.tiendatextil.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,51 +20,47 @@ public class ClienteController {
         this.clienteService = clienteService;
     }
 
-    // Obtener todos los clientes
-    @GetMapping
-    public List<Cliente> obtenerClientes() {
-        return clienteService.obtenerClientes();
-    }
-
-    // Obtener un cliente por id
-    @GetMapping("/{id}")
-    public ResponseEntity<Cliente> obtenerClientePorId(@PathVariable Long id) {
-        Optional<Cliente> cliente = clienteService.obtenerClientePorId(id);
-        return cliente.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    // Obtener solo el nombre de un cliente por id
-    @GetMapping("/nombre/{id}")
-    public ResponseEntity<String> obtenerNombreClientePorId(@PathVariable Long id) {
-        Optional<Cliente> cliente = clienteService.obtenerClientePorId(id);
-        return cliente.map(c -> ResponseEntity.ok(c.getNombre()))
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    // Crear un nuevo cliente
     @PostMapping
-    public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente) {
-        Cliente nuevoCliente = clienteService.crearCliente(cliente);
-        return new ResponseEntity<>(nuevoCliente, HttpStatus.CREATED);
+    public ResponseEntity<ClienteDTO> crearCliente(@RequestBody ClienteDTO clienteDTO) {
+        ClienteDTO clienteCreado = clienteService.crearCliente(clienteDTO);
+        return ResponseEntity.ok(clienteCreado);
     }
 
-    // Actualizar un cliente
+    @GetMapping
+    public ResponseEntity<List<ClienteDTO>> obtenerClientes() {
+        List<ClienteDTO> clientes = clienteService.obtenerClientes();
+        return ResponseEntity.ok(clientes);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ClienteDTO> obtenerClientePorId(@PathVariable Long id) {
+        Optional<ClienteDTO> cliente = clienteService.obtenerClientePorId(id);
+        return cliente.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/nombre/{nombre}")
+    public ResponseEntity<ClienteDTO> obtenerClientePorNombre(@PathVariable String nombre) {
+        Optional<ClienteDTO> cliente = clienteService.obtenerClientePorNombre(nombre);
+        return cliente.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long id, @RequestBody Cliente cliente) {
+    public ResponseEntity<ClienteDTO> actualizarCliente(@PathVariable Long id, @RequestBody ClienteDTO clienteDTO) {
         try {
-            Cliente clienteActualizado = clienteService.actualizarCliente(id, cliente);
+            ClienteDTO clienteActualizado = clienteService.actualizarCliente(id, clienteDTO);
             return ResponseEntity.ok(clienteActualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    // Eliminar un cliente
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
         try {
             clienteService.eliminarCliente(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

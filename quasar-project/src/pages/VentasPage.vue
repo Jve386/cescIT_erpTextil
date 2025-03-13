@@ -7,22 +7,46 @@
     <!-- Formulario para realizar una venta -->
     <q-form @submit.prevent>
       <div class="row q-col-gutter-md">
-        <div class="col-12 col-md-6">
-          <q-input v-model="venta.idCliente" label="ID Cliente" type="number" outlined required @blur="buscarCliente" />
+        <div class="col-12 col-md-4">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">Datos del Cliente</div>
+              <div class="row q-col-gutter-sm q-mt-md">
+                <div class="col-12">
+                  <q-input
+                    v-model="venta.idCliente"
+                    label="ID del Cliente"
+                    type="number"
+                    @blur="buscarCliente"
+                    :rules="[val => !!val || 'ID del cliente es requerido']"
+                  />
+                </div>
+                <div class="col-12">
+                  <q-input
+                    v-model="venta.nombreCliente"
+                    label="Nombre del Cliente"
+                    readonly
+                    class="q-mb-sm"
+                  />
+                  <q-btn
+                    color="primary"
+                    label="Nuevo Cliente"
+                    @click="mostrarDialogoNuevoCliente"
+                  />
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
         </div>
-        <div class="col-12 col-md-6">
-          <q-input v-model="venta.nombreCliente" label="Nombre del Cliente" type="text" outlined required
-            :loading="cargandoCliente" />
-        </div>
-      </div>
-
-      <div class="row q-col-gutter-md">
         <div class="col-12 col-md-4">
           <q-input v-model="venta.fecha" label="Fecha de la Venta" type="date" outlined required />
         </div>
         <div class="col-12 col-md-4">
           <q-input v-model="venta.numeroTicket" label="Número de Ticket" type="text" outlined required />
         </div>
+      </div>
+
+      <div class="row q-col-gutter-md">
         <div class="col-12 col-md-4">
           <q-select v-model="venta.idAlmacen" :options="almacenes" option-value="id" option-label="nombre"
             label="Almacén" outlined required emit-value map-options :loading="cargandoAlmacenes" />
@@ -106,11 +130,46 @@
         </div>
       </div>
     </q-form>
+
+    <!-- Diálogo para nuevo cliente -->
+    <q-dialog v-model="dialogoNuevoCliente" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Nuevo Cliente</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-form @submit.prevent="crearCliente" class="q-gutter-md">
+            <q-input
+              v-model="nuevoCliente.nombre"
+              label="Nombre"
+              :rules="[val => !!val || 'El nombre es requerido']"
+            />
+            <q-input
+              v-model="nuevoCliente.email"
+              label="Email"
+              type="email"
+              :rules="[val => !!val || 'El email es requerido']"
+            />
+            <q-input
+              v-model="nuevoCliente.telefono"
+              label="Teléfono"
+            />
+          </q-form>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" color="primary" v-close-popup />
+          <q-btn flat label="Crear" color="primary" @click="crearCliente" :loading="creandoCliente" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
 export default {
+  name: 'VentasPage',
   data() {
     return {
       loading: false,
@@ -118,6 +177,13 @@ export default {
       cargandoAlmacenes: false,
       maxRetries: 5,
       retryDelay: 2000,
+      dialogoNuevoCliente: false,
+      creandoCliente: false,
+      nuevoCliente: {
+        nombre: '',
+        email: '',
+        telefono: ''
+      },
       almacenes: [
         { id: 1, nombre: 'Tienda Central' },
         { id: 2, nombre: 'Almacén Norte' }
@@ -211,16 +277,17 @@ export default {
       this.cargandoCliente = true;
       try {
         console.log('Buscando cliente con ID:', this.venta.idCliente);
-        // Use the specific endpoint for getting client names
-        const response = await this.$api.get(`/clientes/nombre/${this.venta.idCliente}`);
+        const response = await this.$api.get(`/clientes/${this.venta.idCliente}`);
         console.log('Respuesta del servidor:', response.data);
         if (response.data) {
-          // The response is just the name as a string
-          this.venta.nombreCliente = response.data;
+          this.venta.nombreCliente = response.data.nombre;
         }
       } catch (error) {
         console.error('Error al buscar cliente:', error);
         console.log('Detalles del error:', error.response ? error.response.data : 'No hay detalles');
+        console.log('Estado del error:', error.response ? error.response.status : 'No hay estado');
+        console.log('Headers del error:', error.response ? error.response.headers : 'No hay headers');
+        
         this.$q.notify({
           color: 'negative',
           message: 'No se encontró el cliente con ese ID',
@@ -421,6 +488,53 @@ export default {
     generarNumeroTicket() {
       const timestamp = new Date().getTime();
       return `TK-${timestamp}`;
+    },
+
+    mostrarDialogoNuevoCliente() {
+      this.nuevoCliente = {
+        nombre: '',
+        email: '',
+        telefono: ''
+      };
+      this.dialogoNuevoCliente = true;
+    },
+
+    async crearCliente() {
+      if (!this.nuevoCliente.nombre || !this.nuevoCliente.email) {
+        this.$q.notify({
+          color: 'negative',
+          message: 'Por favor complete los campos requeridos',
+          icon: 'warning'
+        });
+        return;
+      }
+
+      this.creandoCliente = true;
+      try {
+        const response = await this.$api.post('/clientes', this.nuevoCliente);
+        console.log('Cliente creado:', response.data);
+        
+        // Actualizar el formulario con el nuevo cliente
+        this.venta.idCliente = response.data.id;
+        this.venta.nombreCliente = response.data.nombre;
+
+        this.$q.notify({
+          color: 'positive',
+          message: 'Cliente creado correctamente',
+          icon: 'check'
+        });
+
+        this.dialogoNuevoCliente = false;
+      } catch (error) {
+        console.error('Error al crear cliente:', error);
+        this.$q.notify({
+          color: 'negative',
+          message: 'Error al crear el cliente',
+          icon: 'warning'
+        });
+      } finally {
+        this.creandoCliente = false;
+      }
     }
   },
   created() {

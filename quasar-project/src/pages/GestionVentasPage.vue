@@ -145,6 +145,14 @@
             <div class="col-12 col-md-6">
               <q-item>
                 <q-item-section>
+                  <q-item-label caption>Almacén</q-item-label>
+                  <q-item-label>{{ ventaSeleccionada.nombreAlmacen }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-item>
+                <q-item-section>
                   <q-item-label caption>Estado</q-item-label>
                   <q-item-label>
                     <q-badge :color="ventaSeleccionada.estado === 'pendiente' ? 'warning' : 'positive'">
