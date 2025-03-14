@@ -47,10 +47,6 @@ public class StockController {
     public ResponseEntity<List<StockDTO>> obtenerStockPorArticuloId(@PathVariable Long id) {
         List<Stock> stocks = stockService.obtenerStockPorArticulo(id);
 
-        if (stocks.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         // Convertir los stocks a StockDTO
         List<StockDTO> stockDTOs = stocks.stream()
                 .map(StockDTO::new)

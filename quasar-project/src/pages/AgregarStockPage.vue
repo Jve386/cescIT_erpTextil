@@ -7,6 +7,65 @@
 
     <!-- Grid de artículos disponibles -->
     <div class="q-pa-md">
+      <!-- New card for adding products, sizes, and colors -->
+      <q-card class="q-mb-md">
+        <q-card-section>
+          <div class="text-h6">Agregar Nuevo Producto/Talla/Color</div>
+          <div class="row q-col-gutter-md q-mt-md">
+            <div class="col-12 col-md-4">
+              <q-select
+                v-model="nuevoItem.tipo"
+                :options="tiposItem"
+                label="Tipo"
+                outlined
+                emit-value
+                map-options
+                :loading="guardandoItem"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input
+                v-model="nuevoItem.nombre"
+                label="Nombre"
+                outlined
+                :disable="!nuevoItem.tipo"
+                :loading="guardandoItem"
+              />
+            </div>
+            <div class="col-12 col-md-2 flex items-center">
+              <q-btn
+                color="primary"
+                label="Agregar"
+                :disable="!nuevoItem.tipo || !nuevoItem.nombre || (nuevoItem.tipo === 'producto' && !nuevoItem.categoria)"
+                :loading="guardandoItem"
+                @click="agregarNuevoItem"
+              />
+            </div>
+          </div>
+          <!-- Selector de categoría para productos -->
+          <div v-if="nuevoItem.tipo === 'producto'" class="row q-col-gutter-md q-mt-md">
+            <div class="col-12">
+              <q-select
+                v-model="nuevoItem.categoria"
+                :options="categorias"
+                option-value="id"
+                option-label="nombre"
+                label="Categoría"
+                outlined
+                emit-value
+                map-options
+                :loading="cargandoCategorias"
+                :rules="[val => !!val || 'La categoría es obligatoria']"
+              >
+                <template v-slot:append>
+                  <q-icon name="category" />
+                </template>
+              </q-select>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+
       <q-card class="q-mb-md">
         <q-card-section>
           <div class="row justify-between items-center">
@@ -51,6 +110,47 @@
                 </div>
               </template>
             </q-table>
+          </div>
+        </q-card-section>
+      </q-card>
+
+      <!-- Card para precios -->
+      <q-card v-if="articuloSeleccionado" class="q-mb-md">
+        <q-card-section>
+          <div class="text-h6">Precios del Artículo</div>
+          <div class="row q-col-gutter-md q-mt-md">
+            <div class="col-12 col-md-6">
+              <q-input
+                v-model.number="articuloSeleccionado.precioCoste"
+                label="Precio de Coste"
+                type="number"
+                outlined
+                required
+                :rules="[val => val > 0 || 'El precio debe ser mayor a 0']"
+                @update:model-value="actualizarPrecios"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input
+                v-model.number="articuloSeleccionado.precioVenta"
+                label="Precio de Venta"
+                type="number"
+                outlined
+                required
+                :rules="[val => val > 0 || 'El precio debe ser mayor a 0']"
+                @update:model-value="actualizarPrecios"
+              />
+            </div>
+          </div>
+          <div class="row q-mt-md">
+            <div class="col-12">
+              <q-btn
+                color="primary"
+                label="Actualizar Precios"
+                @click="guardarPrecios"
+                :loading="actualizandoPrecios"
+              />
+            </div>
           </div>
         </q-card-section>
       </q-card>
@@ -247,7 +347,22 @@ export default {
         { name: 'talla', label: 'Talla', field: 'talla', sortable: true, align: 'center' },
         { name: 'color', label: 'Color', field: 'color', sortable: true, align: 'center' },
         { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' }
-      ]
+      ],
+      nuevoItem: {
+        tipo: null,
+        nombre: '',
+        categoria: null
+      },
+      tiposItem: [
+        { label: 'Producto', value: 'producto' },
+        { label: 'Talla', value: 'talla' },
+        { label: 'Color', value: 'color' },
+        { label: 'Categoría', value: 'categoria' }
+      ],
+      categorias: [],
+      cargandoCategorias: false,
+      guardandoItem: false,
+      actualizandoPrecios: false
     };
   },
   mounted() {
@@ -256,6 +371,7 @@ export default {
     this.cargarProductos();
     this.cargarTallas();
     this.cargarColores();
+    this.cargarCategorias();
   },
   methods: {
     async cargarArticulos() {
@@ -265,9 +381,11 @@ export default {
         const response = await this.$api.get('/articulos');
         this.articulos = response.data.map(articulo => ({
           id: articulo.id,
-          nombreProducto: articulo.producto?.nombre || 'Sin nombre',
-          talla: articulo.talla?.talla || 'Sin talla',
-          color: articulo.color?.color || 'Sin color'
+          nombreProducto: articulo.nombreProducto || 'Sin nombre',
+          talla: articulo.talla || 'Sin talla',
+          color: articulo.color || 'Sin color',
+          precioCoste: articulo.precioCoste,
+          precioVenta: articulo.precioVenta
         }));
       } catch (error) {
         console.error('Error al cargar artículos:', error);
@@ -348,10 +466,41 @@ export default {
         this.cargandoColores = false;
       }
     },
+
+    async cargarCategorias() {
+      this.cargandoCategorias = true;
+      try {
+        const response = await this.$api.get('/categorias');
+        this.categorias = response.data;
+      } catch (error) {
+        console.error('Error al cargar categorías:', error);
+        this.$q.notify({
+          color: 'negative',
+          message: 'Error al cargar las categorías',
+          icon: 'error'
+        });
+      } finally {
+        this.cargandoCategorias = false;
+      }
+    },
     
-    seleccionarArticulo(articulo) {
+    async seleccionarArticulo(articulo) {
       this.articuloSeleccionado = articulo;
       this.crearStock.idArticulo = articulo.id;
+      
+      // Cargar los precios actuales del artículo
+      try {
+        const response = await this.$api.get(`/articulos/${articulo.id}`);
+        this.articuloSeleccionado.precioCoste = response.data.precio;
+        this.articuloSeleccionado.precioVenta = response.data.precioVenta;
+      } catch (error) {
+        console.error('Error al cargar los precios del artículo:', error);
+        this.$q.notify({
+          color: 'negative',
+          message: 'Error al cargar los precios del artículo',
+          icon: 'error'
+        });
+      }
     },
     
     async crearArticulo() {
@@ -549,6 +698,182 @@ export default {
           message: 'Hubo un error al agregar el stock.',
           icon: 'warning',
         });
+      }
+    },
+
+    async agregarNuevoItem() {
+      if (!this.nuevoItem.tipo || !this.nuevoItem.nombre) {
+        this.$q.notify({
+          color: 'warning',
+          message: 'Debe seleccionar un tipo y escribir un nombre',
+          icon: 'warning'
+        });
+        return;
+      }
+
+      // Validar categoría para productos
+      if (this.nuevoItem.tipo === 'producto' && !this.nuevoItem.categoria) {
+        this.$q.notify({
+          color: 'warning',
+          message: 'Debe seleccionar una categoría para el producto',
+          icon: 'warning'
+        });
+        return;
+      }
+
+      this.guardandoItem = true;
+      try {
+        let endpoint = '';
+        let data = {};
+
+        switch (this.nuevoItem.tipo) {
+          case 'producto':
+            endpoint = '/productos';
+            data = {
+              nombre: this.nuevoItem.nombre,
+              descripcion: '',
+              precioBase: 0,
+              categoria: { id: this.nuevoItem.categoria }
+            };
+            break;
+          case 'talla':
+            endpoint = '/tallas';
+            data = {
+              talla: this.nuevoItem.nombre
+            };
+            break;
+          case 'color':
+            endpoint = '/colores';
+            data = {
+              color: this.nuevoItem.nombre
+            };
+            break;
+          case 'categoria':
+            endpoint = '/categorias';
+            data = {
+              nombre: this.nuevoItem.nombre
+            };
+            break;
+        }
+
+        await this.$api.post(endpoint, data);
+        
+        this.$q.notify({
+          color: 'positive',
+          message: `${this.tiposItem.find(t => t.value === this.nuevoItem.tipo).label} agregado correctamente`,
+          icon: 'check'
+        });
+
+        // Recargar la lista correspondiente
+        switch (this.nuevoItem.tipo) {
+          case 'producto':
+            await this.cargarProductos();
+            break;
+          case 'talla':
+            await this.cargarTallas();
+            break;
+          case 'color':
+            await this.cargarColores();
+            break;
+          case 'categoria':
+            await this.cargarCategorias();
+            break;
+        }
+
+        // Limpiar el formulario
+        this.nuevoItem = {
+          tipo: null,
+          nombre: '',
+          categoria: null
+        };
+      } catch (error) {
+        console.error('Error al agregar el item:', error);
+        this.$q.notify({
+          color: 'negative',
+          message: 'Error al agregar el item. Verifique que no exista uno con el mismo nombre.',
+          icon: 'error'
+        });
+      } finally {
+        this.guardandoItem = false;
+      }
+    },
+
+    async actualizarPrecios() {
+      // Validar que el precio de venta sea mayor que el de coste
+      if (this.articuloSeleccionado.precioVenta <= this.articuloSeleccionado.precioCoste) {
+        this.$q.notify({
+          color: 'warning',
+          message: 'El precio de venta debe ser mayor que el precio de coste',
+          icon: 'warning'
+        });
+      }
+    },
+
+    async guardarPrecios() {
+      if (!this.articuloSeleccionado) return;
+
+      // Validar que los precios sean números válidos
+      if (!this.articuloSeleccionado.precioCoste || !this.articuloSeleccionado.precioVenta) {
+        this.$q.notify({
+          color: 'warning',
+          message: 'Los precios son obligatorios',
+          icon: 'warning'
+        });
+        return;
+      }
+
+      // Validar que el precio de venta sea mayor que el de coste
+      if (this.articuloSeleccionado.precioVenta <= this.articuloSeleccionado.precioCoste) {
+        this.$q.notify({
+          color: 'warning',
+          message: 'El precio de venta debe ser mayor que el precio de coste',
+          icon: 'warning'
+        });
+        return;
+      }
+
+      this.actualizandoPrecios = true;
+      try {
+        // Primero verificar si el artículo existe
+        const articuloResponse = await this.$api.get(`/articulos/${this.articuloSeleccionado.id}`);
+        if (!articuloResponse.data) {
+          throw new Error('Artículo no encontrado');
+        }
+
+        const data = {
+          precio: this.articuloSeleccionado.precioCoste,
+          precioVenta: this.articuloSeleccionado.precioVenta
+        };
+
+        await this.$api.put(`/articulos/${this.articuloSeleccionado.id}`, data);
+
+        this.$q.notify({
+          color: 'positive',
+          message: 'Precios actualizados correctamente',
+          icon: 'check'
+        });
+
+        // Recargar los artículos para actualizar la lista
+        await this.cargarArticulos();
+      } catch (error) {
+        console.error('Error al actualizar los precios:', error);
+        let errorMessage = 'Error al actualizar los precios';
+        
+        if (error.response) {
+          if (error.response.status === 404) {
+            errorMessage = 'El artículo no existe en la base de datos';
+          } else if (error.response.data && error.response.data.message) {
+            errorMessage = error.response.data.message;
+          }
+        }
+
+        this.$q.notify({
+          color: 'negative',
+          message: errorMessage,
+          icon: 'error'
+        });
+      } finally {
+        this.actualizandoPrecios = false;
       }
     }
   }

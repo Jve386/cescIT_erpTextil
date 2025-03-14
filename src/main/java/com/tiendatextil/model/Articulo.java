@@ -16,28 +16,31 @@ public class Articulo {
     @Column(name = "id_articulo")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_producto", nullable = false)
     private Producto producto;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_talla", nullable = false)
     private Talla talla;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_color", nullable = false)
     private Color color;
 
     @Column(name = "precio_coste")
-    private double precio;
+    private Double precio;
 
+    @Column(name = "precio_venta")
+    private Double precioVenta;
 
     public Articulo() {}
 
-    public Articulo(Producto producto, Talla talla, Color color, double precio) {
+    public Articulo(Producto producto, Talla talla, Color color, Double precio) {
         this.producto = producto;
         this.talla = talla;
         this.color = color;
         this.precio = precio;
+        this.precioVenta = precio != null ? precio * 1.5 : null; // Default markup of 50%
     }
 }

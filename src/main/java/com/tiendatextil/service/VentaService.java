@@ -28,14 +28,16 @@ public class VentaService {
     private final VentaRepository ventaRepository;
     private final ArticuloRepository articuloRepository;
     private final StockRepository stockRepository;
+    private final ArticuloService articuloService;
     
 
     @Autowired
     public VentaService(VentaRepository ventaRepository, ArticuloRepository articuloRepository,
-            StockRepository stockRepository) {
+            StockRepository stockRepository, ArticuloService articuloService) {
         this.ventaRepository = ventaRepository;
         this.articuloRepository = articuloRepository;
         this.stockRepository = stockRepository;
+        this.articuloService = articuloService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -107,18 +109,7 @@ public class VentaService {
             
             logger.info("Buscando artículo con nombre: {}, talla: {}, color: {}", nombreProducto, talla, color);
             
-            Optional<Articulo> articuloOpt = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor(
-                    nombreProducto, talla, color);
-
-            if (!articuloOpt.isPresent()) {
-                String errorMsg = "Artículo no encontrado con nombre: " + nombreProducto + 
-                                 ", talla: " + talla + ", color: " + color;
-                logger.error(errorMsg);
-                throw new RuntimeException(errorMsg);
-            }
-
-            Articulo articulo = articuloOpt.get();
-            logger.info("Artículo encontrado: {}", articulo);
+            Articulo articulo = obtenerArticulo(nombreProducto, talla, color);
 
             // Verificar stock solo si la venta está completada
             if (actualizarStock) {
@@ -413,6 +404,12 @@ public class VentaService {
             logger.error(errorMsg, e);
             throw new RuntimeException(errorMsg, e);
         }
+    }
+
+    private Articulo obtenerArticulo(String nombreProducto, String talla, String color) {
+        logger.info("Buscando artículo: producto={}, talla={}, color={}", nombreProducto, talla, color);
+        return articuloService.findByProductoNombreAndTallaTallaAndColorColor(nombreProducto, talla, color)
+                .orElseThrow(() -> new RuntimeException("No se encontró el artículo: " + nombreProducto + " - " + talla + " - " + color));
     }
 
 }
