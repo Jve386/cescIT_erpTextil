@@ -312,46 +312,30 @@ export default {
         if (articuloResponse.data) {
           const articulo = articuloResponse.data;
 
-          if (articulo.producto && articulo.talla && articulo.color) {
-            // Asignar el ID del producto, talla y color directamente
-            detalle.idProducto = articulo.producto.id;
-            detalle.idTalla = articulo.talla.id;
-            detalle.idColor = articulo.color.id;
+          // Asignar los datos del artículo directamente
+          detalle.nombreProducto = articulo.nombreProducto;
+          detalle.talla = articulo.talla;
+          detalle.color = articulo.color;
+          
+          try {
+            // Intentar obtener el precio de venta del detalle de venta
+            const detalleResponse = await this.$api.get(`/detalles-venta/articulo/${detalle.idArticulo}`);
+            console.log('Respuesta del detalle de venta:', detalleResponse.data);
 
-            // Asignar el nombre del producto, talla y color
-            detalle.nombreProducto = articulo.producto.nombre;
-            detalle.talla = articulo.talla.talla;
-            detalle.color = articulo.color.color;
-            
-            try {
-              // Intentar obtener el precio de venta del detalle de venta
-              const detalleResponse = await this.$api.get(`/detalles-venta/articulo/${detalle.idArticulo}`);
-              console.log('Respuesta del detalle de venta:', detalleResponse.data);
-
-              if (detalleResponse.data && detalleResponse.data.length > 0) {
-                detalle.precioUnitario = detalleResponse.data[0].precioUnitario;
-                console.log('Precio de venta asignado:', detalle.precioUnitario);
-              } else {
-                // Si no hay ventas previas, usar el precio base del producto
-                detalle.precioUnitario = articulo.producto.precioBase;
-                console.log('Usando precio base del producto:', detalle.precioUnitario);
-              }
-            } catch (error) {
-              console.warn('No se pudo obtener el precio de venta, usando precio base:', error);
-              detalle.precioUnitario = articulo.producto.precioBase;
+            if (detalleResponse.data && detalleResponse.data.length > 0) {
+              detalle.precioUnitario = detalleResponse.data[0].precioUnitario;
+              console.log('Precio de venta asignado:', detalle.precioUnitario);
+            } else {
+              // Si no hay ventas previas, calcular el precio de venta como 50% más que el precio de coste
+              detalle.precioUnitario = articulo.precioCoste * 1.5;
+              console.log('Usando precio calculado:', detalle.precioUnitario);
             }
-            
-            detalle.datosAutomaticos = true;
-          } else {
-            console.error('El artículo no tiene la estructura esperada:', articulo);
-            this.$q.notify({
-              color: 'warning',
-              message: 'El artículo no tiene todos los datos necesarios',
-              icon: 'warning'
-            });
-            detalle.datosAutomaticos = false;
-            return;
+          } catch (error) {
+            console.warn('No se pudo obtener el precio de venta, usando precio calculado:', error);
+            detalle.precioUnitario = articulo.precioCoste * 1.5;
           }
+          
+          detalle.datosAutomaticos = true;
 
           // Recalcular el precio total
           this.calcularPrecioTotal(index);

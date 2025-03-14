@@ -20,6 +20,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Service
 public class VentaService {
@@ -44,135 +46,58 @@ public class VentaService {
     // Crear una nueva venta
     @Transactional
     public Venta crearVenta(Venta venta) {
-        logger.info("Iniciando creación de venta con {} artículos y estado: {}", 
-                    venta.getDetallesVenta().size(), venta.getEstado());
-        
-        // Validar que la venta tenga detalles
-        if (venta.getDetallesVenta() == null || venta.getDetallesVenta().isEmpty()) {
-            String errorMsg = "No se puede crear una venta sin artículos";
-            logger.error(errorMsg);
-            throw new RuntimeException(errorMsg);
-        }
-        
-        // Validar que el cliente exista
-        if (venta.getCliente() == null || venta.getCliente().getId() == null) {
-            String errorMsg = "El cliente es requerido para crear una venta";
-            logger.error(errorMsg);
-            throw new RuntimeException(errorMsg);
-        }
-        
-        // Validar que el almacén exista
-        if (venta.getAlmacen() == null || venta.getAlmacen().getId() == null) {
-            String errorMsg = "El almacén es requerido para crear una venta";
-            logger.error(errorMsg);
-            throw new RuntimeException(errorMsg);
-        }
-        
-        // Validar que el estado sea válido
-        if (venta.getEstado() == null) {
-            venta.setEstado("pendiente"); // Estado por defecto
-        } else if (!venta.getEstado().equals("pendiente") && !venta.getEstado().equals("completada")) {
-            String errorMsg = "El estado de la venta debe ser 'pendiente' o 'completada'";
-            logger.error(errorMsg);
-            throw new RuntimeException(errorMsg);
-        }
-
-        double totalSinIva = 0;
-        double totalConIva = 0;
-
-        // Determinar si debemos actualizar el stock basado en el estado de la venta
-        boolean actualizarStock = "completada".equals(venta.getEstado());
-        logger.info("¿Actualizar stock? {}", actualizarStock);
-
-        for (DetalleVenta detalle : venta.getDetallesVenta()) {
-            logger.info("Procesando detalle de venta: {}", detalle);
+        try {
+            logger.info("Creating new sale with {} items", venta.getDetallesVenta().size());
             
-            // Validar que el artículo tenga toda la información necesaria
-            if (detalle.getArticulo() == null) {
-                String errorMsg = "El artículo es requerido para el detalle de venta";
-                logger.error(errorMsg);
-                throw new RuntimeException(errorMsg);
-            }
+            // Set the current date
+            venta.setFecha(new Date());
             
-            if (detalle.getArticulo().getProducto() == null || 
-                detalle.getArticulo().getTalla() == null || 
-                detalle.getArticulo().getColor() == null) {
-                String errorMsg = "El artículo debe tener producto, talla y color";
-                logger.error(errorMsg);
-                throw new RuntimeException(errorMsg);
-            }
-
-            // Buscar artículo
-            String nombreProducto = detalle.getArticulo().getProducto().getNombre();
-            String talla = detalle.getArticulo().getTalla().getTalla();
-            String color = detalle.getArticulo().getColor().getColor();
-            
-            logger.info("Buscando artículo con nombre: {}, talla: {}, color: {}", nombreProducto, talla, color);
-            
-            Articulo articulo = obtenerArticulo(nombreProducto, talla, color);
-
-            // Verificar stock solo si la venta está completada
-            if (actualizarStock) {
-                Long articuloId = articulo.getId();
-                Long almacenId = venta.getAlmacen().getId();
-                logger.info("Verificando stock para artículo ID: {} en almacén ID: {}", articuloId, almacenId);
+            // Calculate total and process each detail
+            double total = 0;
+            for (DetalleVenta detalle : venta.getDetallesVenta()) {
+                Articulo articulo = obtenerArticulo(detalle.getArticulo().getProducto().getNombre(), 
+                                                  detalle.getArticulo().getTalla().getTalla(), 
+                                                  detalle.getArticulo().getColor().getColor());
                 
-                Optional<Stock> stockOpt = stockRepository.findByArticulo_IdAndAlmacen_Id(articuloId, almacenId);
-
-                if (!stockOpt.isPresent()) {
-                    String errorMsg = "No hay stock disponible para el artículo: " + nombreProducto + 
-                                     " en el almacén ID: " + almacenId;
-                    logger.error(errorMsg);
-                    throw new RuntimeException(errorMsg);
+                // Set the article in the detail
+                detalle.setArticulo(articulo);
+                
+                // Calculate price based on cost price (50% markup)
+                Double precioCoste = articulo.getPrecio();
+                if (precioCoste == null) {
+                    throw new RuntimeException("Article " + articulo.getId() + " has no cost price defined");
                 }
+                Double precioVenta = precioCoste * 1.5; // 50% markup
+                detalle.setPrecioUnitario(precioVenta);
                 
-                Stock stock = stockOpt.get();
+                // Calculate subtotal
+                double subtotal = precioVenta * detalle.getCantidad();
+                detalle.setPrecioTotal(subtotal);
+                total += subtotal;
+                
+                // Update stock
+                Stock stock = stockRepository.findByArticulo_IdAndAlmacen_Id(articulo.getId(), venta.getAlmacen().getId())
+                    .orElseThrow(() -> new RuntimeException("No stock found for article " + articulo.getId() + 
+                                                         " in warehouse " + venta.getAlmacen().getId()));
+                
                 if (stock.getCantidad() < detalle.getCantidad()) {
-                    String errorMsg = "No hay suficiente stock para el artículo: " + nombreProducto + 
-                                     " en el almacén ID: " + almacenId + 
-                                     ". Disponible: " + stock.getCantidad() + 
-                                     ", Solicitado: " + detalle.getCantidad();
-                    logger.error(errorMsg);
-                    throw new RuntimeException(errorMsg);
+                    throw new RuntimeException("Insufficient stock for article " + articulo.getId() + 
+                                            ". Available: " + stock.getCantidad() + ", Requested: " + detalle.getCantidad());
                 }
-
-                // Actualizar stock solo si la venta está completada
                 stock.setCantidad(stock.getCantidad() - detalle.getCantidad());
                 stockRepository.save(stock);
-                logger.info("Stock actualizado para el artículo: {}. Nueva cantidad: {}", articulo, stock.getCantidad());
-            } else {
-                logger.info("Venta en estado 'pendiente', no se actualiza el stock para el artículo: {}", articulo);
+                
+                logger.debug("Processed detail - Article: {}, Quantity: {}, Price: {}, Subtotal: {}", 
+                           articulo.getId(), detalle.getCantidad(), precioVenta, subtotal);
             }
-
-            // Calcular precios
-            double precioSinIva = detalle.getPrecioUnitario() * detalle.getCantidad();
-            double iva = precioSinIva * 0.21;
-            double precioTotal = precioSinIva + iva;
-
-            // Actualizar detalle
-            detalle.setPrecioSinIva(precioSinIva);
-            detalle.setIva(iva);
-            detalle.setPrecioTotal(precioTotal);
-            detalle.setArticulo(articulo);
-            detalle.setVenta(venta);
-
-            // Acumular totales
-            totalSinIva += precioSinIva;
-            totalConIva += precioTotal;
-        }
-
-        // Guardar venta
-        venta.setTotalSinIva(totalSinIva);
-        venta.setTotalConIva(totalConIva);
-        
-        try {
-            Venta ventaGuardada = ventaRepository.save(venta);
-            logger.info("Venta guardada exitosamente con estado '{}': {}", ventaGuardada.getEstado(), ventaGuardada);
-            return ventaGuardada;
+            
+            venta.setTotalConIva(total);
+            logger.info("Sale created successfully with total: {}", total);
+            
+            return ventaRepository.save(venta);
         } catch (Exception e) {
-            String errorMsg = "Error al guardar la venta en la base de datos: " + e.getMessage();
-            logger.error(errorMsg, e);
-            throw new RuntimeException(errorMsg, e);
+            logger.error("Error creating sale", e);
+            throw new RuntimeException("Error creating sale: " + e.getMessage());
         }
     }
 

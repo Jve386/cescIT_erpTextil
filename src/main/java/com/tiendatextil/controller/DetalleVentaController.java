@@ -129,7 +129,6 @@ public class DetalleVentaController {
         }
 
         dto.setPrecioCoste(articulo.getPrecio());
-        dto.setPrecioVenta(articulo.getPrecioVenta());
         return dto;
     }
 }

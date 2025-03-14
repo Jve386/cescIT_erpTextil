@@ -82,7 +82,24 @@ public class ArticuloController {
     public ResponseEntity<ArticuloDTO> actualizarArticulo(@PathVariable Long id, @RequestBody Articulo articulo) {
         try {
             logger.info("Actualizando artículo con ID: {}", id);
-            Articulo articuloActualizado = articuloService.actualizarArticulo(id, articulo);
+            logger.debug("Datos recibidos para actualización: {}", articulo);
+            
+            // Verificar si el artículo existe
+            Optional<Articulo> articuloExistente = articuloService.obtenerArticuloPorId(id);
+            if (articuloExistente.isEmpty()) {
+                logger.error("No se encontró el artículo con ID: {}", id);
+                return ResponseEntity.notFound().build();
+            }
+
+            // Actualizar solo el campo de precio
+            Articulo articuloActual = articuloExistente.get();
+            articuloActual.setPrecio(articulo.getPrecio());
+            
+            logger.debug("Actualizando precio - Coste: {}", articuloActual.getPrecio());
+            
+            Articulo articuloActualizado = articuloService.actualizarArticulo(id, articuloActual);
+            logger.info("Artículo actualizado exitosamente: {}", articuloActualizado);
+            
             return ResponseEntity.ok(mapToDTO(articuloActualizado));
         } catch (RuntimeException e) {
             logger.error("Error al actualizar artículo con ID: {}", id, e);
@@ -110,49 +127,34 @@ public class ArticuloController {
     }
 
     private ArticuloDTO mapToDTO(Articulo articulo) {
-        try {
-            logger.debug("Mapping article to DTO: {}", articulo.getId());
-            ArticuloDTO dto = new ArticuloDTO();
-            dto.setId(articulo.getId());
-            
-            if (articulo.getProducto() != null) {
-                dto.setNombreProducto(articulo.getProducto().getNombre());
-                logger.debug("Set product name: {}", articulo.getProducto().getNombre());
-            } else {
-                logger.warn("Article {} has no associated product", articulo.getId());
-                dto.setNombreProducto("Sin nombre");
-            }
-            
-            if (articulo.getTalla() != null) {
-                dto.setTalla(articulo.getTalla().getTalla());
-                logger.debug("Set size: {}", articulo.getTalla().getTalla());
-            } else {
-                logger.warn("Article {} has no associated size", articulo.getId());
-                dto.setTalla("Sin talla");
-            }
-            
-            if (articulo.getColor() != null) {
-                dto.setColor(articulo.getColor().getColor());
-                logger.debug("Set color: {}", articulo.getColor().getColor());
-            } else {
-                logger.warn("Article {} has no associated color", articulo.getId());
-                dto.setColor("Sin color");
-            }
-            
-            // Handle null prices
-            Double precio = articulo.getPrecio();
-            Double precioVenta = articulo.getPrecioVenta();
-            
-            dto.setPrecioCoste(precio);
-            dto.setPrecioVenta(precioVenta);
-            
-            logger.debug("Set prices - cost: {}, sale: {}", precio, precioVenta);
-            
-            logger.debug("Successfully mapped article {} to DTO", articulo.getId());
-            return dto;
-        } catch (Exception e) {
-            logger.error("Error mapping article {} to DTO", articulo.getId(), e);
-            throw e;
+        ArticuloDTO dto = new ArticuloDTO();
+        dto.setId(articulo.getId());
+        
+        if (articulo.getProducto() != null) {
+            dto.setNombreProducto(articulo.getProducto().getNombre());
+            logger.debug("Setting product name: {}", articulo.getProducto().getNombre());
+        } else {
+            logger.warn("Product is null for article ID: {}", articulo.getId());
         }
+        
+        if (articulo.getTalla() != null) {
+            dto.setTalla(articulo.getTalla().getTalla());
+            logger.debug("Setting size: {}", articulo.getTalla().getTalla());
+        } else {
+            logger.warn("Size is null for article ID: {}", articulo.getId());
+        }
+        
+        if (articulo.getColor() != null) {
+            dto.setColor(articulo.getColor().getColor());
+            logger.debug("Setting color: {}", articulo.getColor().getColor());
+        } else {
+            logger.warn("Color is null for article ID: {}", articulo.getId());
+        }
+        
+        Double precio = articulo.getPrecio();
+        dto.setPrecioCoste(precio);
+        logger.debug("Setting price: {}", precio);
+        
+        return dto;
     }
 }

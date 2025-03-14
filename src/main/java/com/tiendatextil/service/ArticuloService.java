@@ -55,19 +55,31 @@ public class ArticuloService {
 
     public Articulo actualizarArticulo(Long id, Articulo articulo) {
         try {
-            logger.info("Actualizando artículo con ID: {} desde el servicio", id);
-            Articulo articuloExistente = articuloRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Artículo no encontrado"));
+            logger.info("Iniciando actualización de artículo con ID: {}", id);
+            
+            // Verificar si el artículo existe
+            Optional<Articulo> articuloExistente = articuloRepository.findById(id);
+            if (articuloExistente.isEmpty()) {
+                logger.error("No se encontró el artículo con ID: {}", id);
+                throw new RuntimeException("No se encontró el artículo con ID: " + id);
+            }
 
-            articuloExistente.setProducto(articulo.getProducto());
-            articuloExistente.setPrecio(articulo.getPrecio());
-            articuloExistente.setTalla(articulo.getTalla());
-            articuloExistente.setColor(articulo.getColor());
-            articuloExistente.setPrecioVenta(articulo.getPrecioVenta());
-
-            return articuloRepository.save(articuloExistente);
+            // Obtener el artículo existente
+            Articulo articuloActual = articuloExistente.get();
+            
+            // Actualizar solo el campo de precio
+            articuloActual.setPrecio(articulo.getPrecio());
+            
+            logger.debug("Actualizando precio del artículo {} - Coste: {}", 
+                id, articuloActual.getPrecio());
+            
+            // Guardar los cambios
+            Articulo articuloActualizado = articuloRepository.save(articuloActual);
+            logger.info("Artículo actualizado exitosamente: {}", articuloActualizado);
+            
+            return articuloActualizado;
         } catch (Exception e) {
-            logger.error("Error al actualizar artículo con ID: {} desde el servicio", id, e);
+            logger.error("Error al actualizar artículo con ID: {}", id, e);
             throw e;
         }
     }

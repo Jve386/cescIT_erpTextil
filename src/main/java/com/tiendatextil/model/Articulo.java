@@ -31,9 +31,6 @@ public class Articulo {
     @Column(name = "precio_coste")
     private Double precio;
 
-    @Column(name = "precio_venta")
-    private Double precioVenta;
-
     public Articulo() {}
 
     public Articulo(Producto producto, Talla talla, Color color, Double precio) {
@@ -41,6 +38,5 @@ public class Articulo {
         this.talla = talla;
         this.color = color;
         this.precio = precio;
-        this.precioVenta = precio != null ? precio * 1.5 : null; // Default markup of 50%
     }
 }
