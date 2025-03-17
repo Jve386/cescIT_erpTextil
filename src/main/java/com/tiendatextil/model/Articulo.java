@@ -29,14 +29,18 @@ public class Articulo {
     private Color color;
 
     @Column(name = "precio_coste")
-    private Double precio;
+    private Double precioCoste;
+    
+    @Column(name = "precio_venta")
+    private Double precioVenta;
 
     public Articulo() {}
 
-    public Articulo(Producto producto, Talla talla, Color color, Double precio) {
+    public Articulo(Producto producto, Talla talla, Color color, Double precioCoste, Double precioVenta) {
         this.producto = producto;
         this.talla = talla;
         this.color = color;
-        this.precio = precio;
+        this.precioCoste = precioCoste;
+        this.precioVenta = precioVenta;
     }
 }

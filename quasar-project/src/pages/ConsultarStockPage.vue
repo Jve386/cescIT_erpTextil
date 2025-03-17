@@ -152,12 +152,16 @@ export default {
       try {
         // Obtener todos los artículos
         const response = await this.$api.get('/articulos');
+        console.log('Respuesta de artículos:', response.data);
         this.articulos = response.data.map(articulo => ({
           id: articulo.id,
-          nombreProducto: articulo.producto?.nombre || 'Sin nombre',
-          talla: articulo.talla?.talla || 'Sin talla',
-          color: articulo.color?.color || 'Sin color'
+          nombreProducto: articulo.nombreProducto,
+          talla: articulo.talla,
+          color: articulo.color,
+          precioCoste: articulo.precioCoste,
+          precioVenta: articulo.precioVenta
         }));
+        console.log('Artículos mapeados:', this.articulos);
       } catch (error) {
         console.error('Error al cargar artículos:', error);
         this.$q.notify({

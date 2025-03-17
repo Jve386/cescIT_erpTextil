@@ -91,11 +91,13 @@ public class ArticuloController {
                 return ResponseEntity.notFound().build();
             }
 
-            // Actualizar solo el campo de precio
+            // Actualizar los campos de precio
             Articulo articuloActual = articuloExistente.get();
-            articuloActual.setPrecio(articulo.getPrecio());
+            articuloActual.setPrecioCoste(articulo.getPrecioCoste());
+            articuloActual.setPrecioVenta(articulo.getPrecioVenta());
             
-            logger.debug("Actualizando precio - Coste: {}", articuloActual.getPrecio());
+            logger.debug("Actualizando precios - Coste: {}, Venta: {}", 
+                articuloActual.getPrecioCoste(), articuloActual.getPrecioVenta());
             
             Articulo articuloActualizado = articuloService.actualizarArticulo(id, articuloActual);
             logger.info("Artículo actualizado exitosamente: {}", articuloActualizado);
@@ -151,9 +153,11 @@ public class ArticuloController {
             logger.warn("Color is null for article ID: {}", articulo.getId());
         }
         
-        Double precio = articulo.getPrecio();
-        dto.setPrecioCoste(precio);
-        logger.debug("Setting price: {}", precio);
+        dto.setPrecioCoste(articulo.getPrecioCoste());
+        logger.debug("Setting cost price: {}", articulo.getPrecioCoste());
+        
+        dto.setPrecioVenta(articulo.getPrecioVenta());
+        logger.debug("Setting sale price: {}", articulo.getPrecioVenta());
         
         return dto;
     }

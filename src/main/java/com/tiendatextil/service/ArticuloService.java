@@ -67,11 +67,12 @@ public class ArticuloService {
             // Obtener el artículo existente
             Articulo articuloActual = articuloExistente.get();
             
-            // Actualizar solo el campo de precio
-            articuloActual.setPrecio(articulo.getPrecio());
+            // Actualizar los campos de precio
+            articuloActual.setPrecioCoste(articulo.getPrecioCoste());
+            articuloActual.setPrecioVenta(articulo.getPrecioVenta());
             
-            logger.debug("Actualizando precio del artículo {} - Coste: {}", 
-                id, articuloActual.getPrecio());
+            logger.debug("Actualizando precios del artículo {} - Coste: {}, Venta: {}", 
+                id, articuloActual.getPrecioCoste(), articuloActual.getPrecioVenta());
             
             // Guardar los cambios
             Articulo articuloActualizado = articuloRepository.save(articuloActual);

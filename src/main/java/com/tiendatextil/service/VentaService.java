@@ -49,55 +49,84 @@ public class VentaService {
         try {
             logger.info("Creating new sale with {} items", venta.getDetallesVenta().size());
             
-            // Set the current date
-            venta.setFecha(new Date());
-            
-            // Calculate total and process each detail
-            double total = 0;
-            for (DetalleVenta detalle : venta.getDetallesVenta()) {
-                Articulo articulo = obtenerArticulo(detalle.getArticulo().getProducto().getNombre(), 
-                                                  detalle.getArticulo().getTalla().getTalla(), 
-                                                  detalle.getArticulo().getColor().getColor());
-                
-                // Set the article in the detail
-                detalle.setArticulo(articulo);
-                
-                // Calculate price based on cost price (50% markup)
-                Double precioCoste = articulo.getPrecio();
-                if (precioCoste == null) {
-                    throw new RuntimeException("Article " + articulo.getId() + " has no cost price defined");
-                }
-                Double precioVenta = precioCoste * 1.5; // 50% markup
-                detalle.setPrecioUnitario(precioVenta);
-                
-                // Calculate subtotal
-                double subtotal = precioVenta * detalle.getCantidad();
-                detalle.setPrecioTotal(subtotal);
-                total += subtotal;
-                
-                // Update stock
-                Stock stock = stockRepository.findByArticulo_IdAndAlmacen_Id(articulo.getId(), venta.getAlmacen().getId())
-                    .orElseThrow(() -> new RuntimeException("No stock found for article " + articulo.getId() + 
-                                                         " in warehouse " + venta.getAlmacen().getId()));
-                
-                if (stock.getCantidad() < detalle.getCantidad()) {
-                    throw new RuntimeException("Insufficient stock for article " + articulo.getId() + 
-                                            ". Available: " + stock.getCantidad() + ", Requested: " + detalle.getCantidad());
-                }
-                stock.setCantidad(stock.getCantidad() - detalle.getCantidad());
-                stockRepository.save(stock);
-                
-                logger.debug("Processed detail - Article: {}, Quantity: {}, Price: {}, Subtotal: {}", 
-                           articulo.getId(), detalle.getCantidad(), precioVenta, subtotal);
+            // Set the current date if not already set
+            if (venta.getFecha() == null) {
+                venta.setFecha(new Date());
             }
             
-            venta.setTotalConIva(total);
-            logger.info("Sale created successfully with total: {}", total);
+            // Calculate totals and process each detail
+            double totalSinIva = 0;
+            double totalConIva = 0;
+            
+            for (DetalleVenta detalle : venta.getDetallesVenta()) {
+                // Get the full article entity if only ID is provided
+                if (detalle.getArticulo() != null && detalle.getArticulo().getId() != null) {
+                    Articulo articulo = articuloRepository.findById(detalle.getArticulo().getId())
+                        .orElseThrow(() -> new RuntimeException("Article not found with ID: " + detalle.getArticulo().getId()));
+                    
+                    // Set the complete article in the detail
+                    detalle.setArticulo(articulo);
+                    
+                    // Use the sale price from the article
+                    Double precioVenta = articulo.getPrecioVenta();
+                    if (precioVenta == null) {
+                        throw new RuntimeException("Article " + articulo.getId() + " has no sale price defined");
+                    }
+                    
+                    // Set the unit price from the article's sale price
+                    detalle.setPrecioUnitario(precioVenta);
+                    
+                    // Calculate subtotal (price without VAT)
+                    double precioSinIva = precioVenta * detalle.getCantidad();
+                    detalle.setPrecioSinIva(precioSinIva);
+                    
+                    // Calculate VAT (21%)
+                    double iva = precioSinIva * 0.21;
+                    detalle.setIva(iva);
+                    
+                    // Calculate total price (with VAT)
+                    double precioTotal = precioSinIva + iva;
+                    detalle.setPrecioTotal(precioTotal);
+                    
+                    // Add to sale totals
+                    totalSinIva += precioSinIva;
+                    totalConIva += precioTotal;
+                    
+                    // Update stock
+                    Stock stock = stockRepository.findByArticulo_IdAndAlmacen_Id(articulo.getId(), venta.getAlmacen().getId())
+                        .orElseThrow(() -> new RuntimeException("No stock found for article " + articulo.getId() + 
+                                                             " in warehouse " + venta.getAlmacen().getId()));
+                    
+                    if (stock.getCantidad() < detalle.getCantidad()) {
+                        throw new RuntimeException("Insufficient stock for article " + articulo.getId() + 
+                                                ". Available: " + stock.getCantidad() + ", Requested: " + detalle.getCantidad());
+                    }
+                    
+                    // Reduce stock quantity
+                    stock.setCantidad(stock.getCantidad() - detalle.getCantidad());
+                    stockRepository.save(stock);
+                    
+                    // Set the venta reference in the detail
+                    detalle.setVenta(venta);
+                    
+                    logger.debug("Processed detail - Article: {}, Quantity: {}, Unit Price: {}, Subtotal: {}, Total: {}", 
+                               articulo.getId(), detalle.getCantidad(), precioVenta, precioSinIva, precioTotal);
+                } else {
+                    throw new RuntimeException("Sale detail is missing article information");
+                }
+            }
+            
+            // Set the calculated totals in the sale
+            venta.setTotalSinIva(totalSinIva);
+            venta.setTotalConIva(totalConIva);
+            
+            logger.info("Sale created successfully with total (without VAT): {}, total (with VAT): {}", 
+                      totalSinIva, totalConIva);
             
             return ventaRepository.save(venta);
         } catch (Exception e) {
             logger.error("Error creating sale", e);
-            throw new RuntimeException("Error creating sale: " + e.getMessage());
+            throw new RuntimeException("Error creating sale: " + e.getMessage(), e);
         }
     }
 
@@ -332,9 +361,15 @@ public class VentaService {
     }
 
     private Articulo obtenerArticulo(String nombreProducto, String talla, String color) {
-        logger.info("Buscando artículo: producto={}, talla={}, color={}", nombreProducto, talla, color);
-        return articuloService.findByProductoNombreAndTallaTallaAndColorColor(nombreProducto, talla, color)
-                .orElseThrow(() -> new RuntimeException("No se encontró el artículo: " + nombreProducto + " - " + talla + " - " + color));
+        Optional<Articulo> articuloOpt = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor(
+                nombreProducto, talla, color);
+        
+        if (articuloOpt.isEmpty()) {
+            throw new RuntimeException("Article not found with product: " + nombreProducto + 
+                                     ", size: " + talla + ", color: " + color);
+        }
+        
+        return articuloOpt.get();
     }
 
 }

@@ -128,7 +128,8 @@ public class DetalleVentaController {
             dto.setColor(articulo.getColor().getColor());
         }
 
-        dto.setPrecioCoste(articulo.getPrecio());
+        dto.setPrecioCoste(articulo.getPrecioCoste());
+        dto.setPrecioVenta(articulo.getPrecioVenta());
         return dto;
     }
 }

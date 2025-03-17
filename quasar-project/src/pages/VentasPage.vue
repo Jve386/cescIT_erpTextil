@@ -4,6 +4,11 @@
       <div class="text-h6">Realizar Venta</div>
     </q-banner>
 
+    <!-- Loading Overlay -->
+    <q-inner-loading :showing="pageLoading">
+      <q-spinner-dots size="50px" color="primary" />
+    </q-inner-loading>
+
     <!-- Formulario para realizar una venta -->
     <q-form @submit.prevent>
       <div class="row q-col-gutter-md">
@@ -172,6 +177,7 @@ export default {
   name: 'VentasPage',
   data() {
     return {
+      pageLoading: true,
       loading: false,
       cargandoCliente: false,
       cargandoAlmacenes: false,
@@ -202,12 +208,37 @@ export default {
     };
   },
   methods: {
+    async initializePage() {
+      this.pageLoading = true;
+      try {
+        // Cargar almacenes
+        await this.cargarAlmacenes();
+        
+        // Establecer la fecha actual
+        this.venta.fecha = this.obtenerFechaActual();
+        
+        // Generar número de ticket
+        this.venta.numeroTicket = this.generarNumeroTicket();
+      } catch (error) {
+        console.error('Error initializing page:', error);
+        this.$q.notify({
+          color: 'negative',
+          message: 'Error al cargar los datos iniciales',
+          icon: 'error'
+        });
+      } finally {
+        this.pageLoading = false;
+      }
+    },
     agregarDetalle() {
       this.venta.detalles.push({
         idArticulo: null,
         nombreProducto: '',
         talla: '',
         color: '',
+        idProducto: null,
+        idTalla: null,
+        idColor: null,
         cantidad: 1,
         precioUnitario: 0,
         precioTotal: 0,
@@ -317,23 +348,20 @@ export default {
           detalle.talla = articulo.talla;
           detalle.color = articulo.color;
           
-          try {
-            // Intentar obtener el precio de venta del detalle de venta
-            const detalleResponse = await this.$api.get(`/detalles-venta/articulo/${detalle.idArticulo}`);
-            console.log('Respuesta del detalle de venta:', detalleResponse.data);
-
-            if (detalleResponse.data && detalleResponse.data.length > 0) {
-              detalle.precioUnitario = detalleResponse.data[0].precioUnitario;
-              console.log('Precio de venta asignado:', detalle.precioUnitario);
-            } else {
-              // Si no hay ventas previas, calcular el precio de venta como 50% más que el precio de coste
-              detalle.precioUnitario = articulo.precioCoste * 1.5;
-              console.log('Usando precio calculado:', detalle.precioUnitario);
-            }
-          } catch (error) {
-            console.warn('No se pudo obtener el precio de venta, usando precio calculado:', error);
-            detalle.precioUnitario = articulo.precioCoste * 1.5;
+          // Guardar los IDs para referencia
+          if (articulo.producto) {
+            detalle.idProducto = articulo.producto.id;
           }
+          if (articulo.talla) {
+            detalle.idTalla = articulo.talla.id;
+          }
+          if (articulo.color) {
+            detalle.idColor = articulo.color.id;
+          }
+          
+          // Usar el precio de venta del artículo directamente
+          detalle.precioUnitario = articulo.precioVenta;
+          console.log('Precio de venta asignado:', detalle.precioUnitario);
           
           detalle.datosAutomaticos = true;
 
@@ -396,20 +424,7 @@ export default {
           detallesVenta: this.venta.detalles.map(detalle => {
             return {
               articulo: {
-                id: parseInt(detalle.idArticulo),
-                producto: {
-                  id: parseInt(detalle.idProducto),
-                  nombre: detalle.nombreProducto
-                },
-                talla: {
-                  id: parseInt(detalle.idTalla),
-                  talla: detalle.talla 
-                },
-                color: {
-                  id: parseInt(detalle.idColor),
-                  color: detalle.color 
-                },
-                precio: detalle.precioUnitario
+                id: parseInt(detalle.idArticulo)
               },
               cantidad: detalle.cantidad,
               precioUnitario: detalle.precioUnitario,
@@ -540,14 +555,7 @@ export default {
     }
   },
   created() {
-    // Establecer la fecha actual
-    this.venta.fecha = this.obtenerFechaActual();
-
-    // Generar un número de ticket por defecto basado en la fecha y hora actual
-    this.venta.numeroTicket = this.generarNumeroTicket();
-
-    // Cargar los almacenes disponibles con reintentos
-    this.cargarAlmacenes();
+    this.initializePage();
   }
 };
 </script>

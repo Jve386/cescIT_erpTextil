@@ -491,7 +491,7 @@ export default {
       // Cargar los precios actuales del artículo
       try {
         const response = await this.$api.get(`/articulos/${articulo.id}`);
-        this.articuloSeleccionado.precioCoste = response.data.precio;
+        this.articuloSeleccionado.precioCoste = response.data.precioCoste;
         this.articuloSeleccionado.precioVenta = response.data.precioVenta;
       } catch (error) {
         console.error('Error al cargar los precios del artículo:', error);
@@ -841,7 +841,7 @@ export default {
         }
 
         const data = {
-          precio: this.articuloSeleccionado.precioCoste,
+          precioCoste: this.articuloSeleccionado.precioCoste,
           precioVenta: this.articuloSeleccionado.precioVenta
         };
 
