@@ -547,11 +547,15 @@ export default {
           return;
         }
 
+        // Calcular el precio de venta (50% de margen por defecto)
+        const precioVenta = precioCoste * 1.5;
+
         const articuloData = {
           producto: { id: this.nuevoArticulo.idProducto },
           talla: { id: this.nuevoArticulo.idTalla },
           color: { id: this.nuevoArticulo.idColor },
-          precio: precioCoste
+          precioCoste: precioCoste,
+          precioVenta: precioVenta
         };
 
         console.log('Enviando datos de artículo:', articuloData);
@@ -563,7 +567,7 @@ export default {
 
         this.$q.notify({
           color: 'positive',
-          message: `Artículo creado correctamente. ID: ${nuevoArticulo.id}, Precio: ${nuevoArticulo.precioCoste || nuevoArticulo.precio || 'No disponible'}`,
+          message: `Artículo creado correctamente. ID: ${nuevoArticulo.id}, Precio Coste: ${nuevoArticulo.precioCoste}, Precio Venta: ${nuevoArticulo.precioVenta}`,
           icon: 'check'
         });
 
