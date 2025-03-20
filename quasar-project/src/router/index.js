@@ -3,6 +3,7 @@ import AgregarStock from '../pages/AgregarStockPage.vue';
 import Ventas from '../pages/VentasPage.vue';
 import ConsultarStock from '../pages/ConsultarStockPage.vue';
 import GestionVentasPage from '../pages/GestionVentasPage.vue';
+import EstadisticasPage from '../pages/EstadisticasPage.vue';
 
 const routes = [
   {
@@ -28,6 +29,11 @@ const routes = [
     path: '/gestionventas',  // Ruta para consultar ventas
     name: 'GestionVentas',
     component: GestionVentasPage,
+  },
+  {
+    path: '/estadisticas',  // Ruta para consultar estadisticas
+    name: 'Estadisticas',
+    component: EstadisticasPage,
   },
   {
     path: '/:catchAll(.*)*',  // Ruta de error 404

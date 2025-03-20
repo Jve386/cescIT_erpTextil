@@ -25,6 +25,9 @@
         <q-item to="/gestionventas">
           <q-item-section>Gestión de Ventas</q-item-section>
         </q-item>
+        <q-item to="/estadisticas">
+          <q-item-section>Estadísticas</q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 

@@ -14,6 +14,9 @@ const routes = [
 
       // Ruta para Gestión de Ventas
       { path: 'gestionventas', component: () => import('src/pages/GestionVentasPage.vue') },
+    
+      // Ruta para Estadísticas
+      { path: 'estadisticas', component: () => import('src/pages/EstadisticasPage.vue') },
     ],
   },
 
