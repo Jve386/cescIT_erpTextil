@@ -14,18 +14,37 @@
     <q-drawer v-model="leftDrawerOpen" side="left" bordered>
       <q-list>
         <q-item to="/agregarstock">
+          <q-item-section avatar>
+            <q-icon name="add_circle" />
+          </q-item-section>
           <q-item-section>Agregar Stock</q-item-section>
         </q-item>
+
         <q-item to="/consultar-stock">
+          <q-item-section avatar>
+            <q-icon name="inventory" />
+          </q-item-section>
           <q-item-section>Consultar Stock</q-item-section>
         </q-item>
+
         <q-item to="/ventas">
+          <q-item-section avatar>
+            <q-icon name="shopping_cart" />
+          </q-item-section>
           <q-item-section>Ventas</q-item-section>
         </q-item>
+
         <q-item to="/gestionventas">
+          <q-item-section avatar>
+            <q-icon name="receipt_long" />
+          </q-item-section>
           <q-item-section>Gestión de Ventas</q-item-section>
         </q-item>
+
         <q-item to="/estadisticas">
+          <q-item-section avatar>
+            <q-icon name="bar_chart" />
+          </q-item-section>
           <q-item-section>Estadísticas</q-item-section>
         </q-item>
       </q-list>
