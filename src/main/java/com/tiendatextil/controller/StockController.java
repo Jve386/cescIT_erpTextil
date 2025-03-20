@@ -31,7 +31,7 @@ public class StockController {
     // Obtener todos los stocks en formato DTO
     @GetMapping
     public ResponseEntity<List<StockDTO>> obtenerStocks() {
-        List<StockDTO> stockDTOs = stockService.obtenerStocks();  // Ya devuelve una lista de StockDTO
+        List<StockDTO> stockDTOs = stockService.obtenerStocks();  //  devuelve una lista de StockDTO
         return ResponseEntity.ok(stockDTOs);
     }
 

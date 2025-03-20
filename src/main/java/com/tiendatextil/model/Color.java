@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class Color {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Se agrega esta anotación para generar el ID automáticamente
+    @GeneratedValue(strategy = GenerationType.IDENTITY) 
     @Column(name = "id_color")
     private Long id;
 

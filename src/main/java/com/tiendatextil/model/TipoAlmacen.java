@@ -8,11 +8,11 @@ public enum TipoAlmacen {
     public static TipoAlmacen fromString(String tipo) {
         if (tipo != null) {
             try {
-                return TipoAlmacen.valueOf(tipo.toUpperCase()); // Convertir la cadena a mayúsculas antes de buscar el valor en el enum
+                return TipoAlmacen.valueOf(tipo.toUpperCase()); 
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Valor no válido para TipoAlmacen: " + tipo);
             }
         }
-        return null; // O lanzar una excepción si prefieres
+        return null;
     }
 }
