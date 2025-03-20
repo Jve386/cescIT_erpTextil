@@ -101,6 +101,16 @@ public class DetalleVentaController {
         return ResponseEntity.ok(detalles);
     }
 
+    // Obtener detalles de venta por id de artículo
+    @GetMapping("/articulo/{id}")
+    public ResponseEntity<List<DetalleVentaDTO>> obtenerDetallesPorArticulo(@PathVariable Long id) {
+        List<DetalleVenta> detalles = detalleVentaService.obtenerDetallesPorArticulo(id);
+        List<DetalleVentaDTO> detallesDTO = detalles.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(detallesDTO);
+    }
+
     private ArticuloDTO mapToArticuloDTO(Articulo articulo) {
         ArticuloDTO dto = new ArticuloDTO();
         dto.setId(articulo.getId());
@@ -118,7 +128,8 @@ public class DetalleVentaController {
             dto.setColor(articulo.getColor().getColor());
         }
 
-        dto.setPrecioCoste(articulo.getPrecio());
+        dto.setPrecioCoste(articulo.getPrecioCoste());
+        dto.setPrecioVenta(articulo.getPrecioVenta());
         return dto;
     }
 }

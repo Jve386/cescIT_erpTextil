@@ -4,7 +4,7 @@
     <q-header elevated class="bg-primary text-white" height-hint="60">
       <q-toolbar>
         <q-toolbar-title>
-          Mi Aplicación
+          TEXTIL CESC-IT
         </q-toolbar-title>
         <q-btn flat icon="menu" @click="toggleSidebar" />
       </q-toolbar>

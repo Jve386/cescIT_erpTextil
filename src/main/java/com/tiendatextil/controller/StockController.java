@@ -31,7 +31,7 @@ public class StockController {
     // Obtener todos los stocks en formato DTO
     @GetMapping
     public ResponseEntity<List<StockDTO>> obtenerStocks() {
-        List<StockDTO> stockDTOs = stockService.obtenerStocks();  // Ya devuelve una lista de StockDTO
+        List<StockDTO> stockDTOs = stockService.obtenerStocks();  //  devuelve una lista de StockDTO
         return ResponseEntity.ok(stockDTOs);
     }
 
@@ -46,10 +46,6 @@ public class StockController {
     @GetMapping("/articulo/{id}")
     public ResponseEntity<List<StockDTO>> obtenerStockPorArticuloId(@PathVariable Long id) {
         List<Stock> stocks = stockService.obtenerStockPorArticulo(id);
-
-        if (stocks.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
 
         // Convertir los stocks a StockDTO
         List<StockDTO> stockDTOs = stocks.stream()

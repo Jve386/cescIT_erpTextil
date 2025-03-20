@@ -37,8 +37,13 @@ public class DetalleVentaService {
     }
 
     // Obtener detalles de venta por ID de venta
-    public List<DetalleVenta> obtenerDetallesPorVenta(Long id) {
-        return detalleVentaRepository.findByVentaId(id);
+    public List<DetalleVenta> obtenerDetallesPorVenta(Long idVenta) {
+        return detalleVentaRepository.findByVentaId(idVenta);
+    }
+
+    // Obtener detalles de venta por ID de artículo
+    public List<DetalleVenta> obtenerDetallesPorArticulo(Long idArticulo) {
+        return detalleVentaRepository.findByArticuloId(idArticulo);
     }
 
     // Actualizar un detalle de venta
@@ -76,5 +81,9 @@ public class DetalleVentaService {
         detalleVenta.setPrecioSinIva(precioSinIva);
         detalleVenta.setIva(iva);
         detalleVenta.setPrecioTotal(precioTotal);
+    }
+
+    public DetalleVenta obtenerDetalleVenta(Long id) {
+        return detalleVentaRepository.findById(id).orElse(null);
     }
 }

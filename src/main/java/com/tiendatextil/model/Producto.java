@@ -21,9 +21,6 @@ public class Producto {
 
     private String descripcion;
 
-    @Column(name = "precio_base", nullable = false)
-    private double precioBase;
-
     @ManyToOne
     @JoinColumn(name = "id_categoria")
     private Categoria categoria;
@@ -32,10 +29,9 @@ public class Producto {
     public Producto() {}
 
 
-    public Producto(String nombre, String descripcion, double precioBase, Categoria categoria) {
+    public Producto(String nombre, String descripcion, Categoria categoria) {
         this.nombre = nombre;
         this.descripcion = descripcion;
-        this.precioBase = precioBase;
         this.categoria = categoria;
     }
 }

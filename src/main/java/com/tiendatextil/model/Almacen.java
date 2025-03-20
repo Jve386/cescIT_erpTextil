@@ -21,7 +21,7 @@ public class Almacen {
     @Column(nullable = false)
     private String direccion;
 
-    @Enumerated(EnumType.STRING)  // ¡Asegura que esto esté presente!
+    @Enumerated(EnumType.STRING)  
     @Column(nullable = false, name = "tipo_almacen")
     private TipoAlmacen tipoAlmacen;
 

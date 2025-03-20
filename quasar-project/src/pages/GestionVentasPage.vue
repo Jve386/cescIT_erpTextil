@@ -145,6 +145,14 @@
             <div class="col-12 col-md-6">
               <q-item>
                 <q-item-section>
+                  <q-item-label caption>Almacén</q-item-label>
+                  <q-item-label>{{ ventaSeleccionada.nombreAlmacen }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-item>
+                <q-item-section>
                   <q-item-label caption>Estado</q-item-label>
                   <q-item-label>
                     <q-badge :color="ventaSeleccionada.estado === 'pendiente' ? 'warning' : 'positive'">
@@ -295,12 +303,16 @@ export default {
       this.cargando = true;
       try {
         const response = await this.$api.get('/ventas');
-        this.ventas = response.data;
+        console.log('Ventas cargadas:', response.data);
         
         // Aplicar filtro de estado si está seleccionado
         if (this.filtroEstado) {
-          this.ventas = this.ventas.filter(venta => venta.estado === this.filtroEstado);
+          this.ventas = response.data.filter(venta => venta.estado === this.filtroEstado);
+        } else {
+          this.ventas = response.data;
         }
+        
+        console.log('Ventas después del filtro:', this.ventas);
       } catch (error) {
         console.error('Error al cargar ventas:', error);
         this.$q.notify({
@@ -318,7 +330,7 @@ export default {
       try {
         let url = '/ventas';
         
-        // Si hay búsqueda por número de ticket, filtrar en el frontend
+        // Obtener todas las ventas
         const response = await this.$api.get(url);
         let ventas = response.data;
         
@@ -334,6 +346,7 @@ export default {
           );
         }
         
+        console.log('Ventas filtradas:', ventas);
         this.ventas = ventas;
       } catch (error) {
         console.error('Error al buscar ventas:', error);
