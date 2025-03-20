@@ -9,53 +9,63 @@ Full-stack ERP system for a textile enterprise, built with PostgreSQL, Docker, S
 
 
 ## Project Structure
+```
 myapp/
 │── backend/    # Spring Boot application
 │── frontend/   # Quasar (Vue.js) application
 │── README.md   # Documentation
+```
 
 
 ## Database
-<a href="assets/bbdd.png" target="_blank">
-  <img src="assets/bbdd.png" alt="db" width="300">
+<a href="assets/screens/bbdd.png" target="_blank">
+  <img src="assets/screens/bbdd.png" alt="db" width="300">
 </a>
 
 
 ## Technologies Used
-Quasar:
+- Quasar:
 ```pinia``` for state management
+
 ```vee-validate``` for form validation
+
 ```date-fns``` for date formatting
+
 ```echarts``` and ```vue-echarts``` for visualizations
+
 ```vue-i18n``` for multi-language support
 
 
-Spring Boot:
+
+- Spring Boot:
 ```spring-boot-starter-security``` (authentication & authorization)
+
 ```spring-boot-starter-validation``` (request validation)
+
 ```flyway-core``` (DB migrations)
+
 ```spring-boot-starter-actuator``` (health monitoring)
 
 
 ## Screenshots
 
-<a href="assets/erp_01.png" target="_blank">
-  <img src="assets/dashboard.png" alt="Dashboard Screenshot" width="300">
+<a href="assets/screens/erp_01.png" target="_blank">
+  <img src="assets/screens/erp_01.png" alt="Dashboard Screenshot" width="300">
 </a>
 
-<a href="assets/erp_02.png" target="_blank">
-  <img src="assets/inventory.png" alt="Dashboard Screenshot" width="300">
+<a href="assets/screens/erp_02.png" target="_blank">
+  <img src="assets/screens/erp_02.png" alt="Dashboard Screenshot" width="300">
 </a>
 
-<a href="assets/erp_03.png" target="_blank">
-  <img src="assets/inventory.png" alt="Dashboard Screenshot" width="300">
+<a href="assets/screens/erp_03.png" target="_blank">
+  <img src="assets/screens/erp_03.png" alt="Dashboard Screenshot" width="300">
 </a>
 
-<a href="assets/erp_04.png" target="_blank">
-  <img src="assets/inventory.png" alt="Dashboard Screenshot" width="300">
+<a href="assets/screens/erp_04.png" target="_blank">
+  <img src="assets/screens/erp_04.png" alt="Dashboard Screenshot" width="300">
 </a>
 
-<a href="assets/erp_05.png" target="_blank">
-  <img src="assets/inventory.png" alt="Dashboard Screenshot" width="300">
+<a href="assets/screens/erp_05.png" target="_blank">
+  <img src="assets/screens/erp_05.png" alt="Dashboard Screenshot" width="300">
 </a>
 
