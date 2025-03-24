@@ -360,16 +360,16 @@ public class VentaService {
         }
     }
 
-    private Articulo obtenerArticulo(String nombreProducto, String talla, String color) {
-        Optional<Articulo> articuloOpt = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor(
-                nombreProducto, talla, color);
+    // private Articulo obtenerArticulo(String nombreProducto, String talla, String color) {
+    //     Optional<Articulo> articuloOpt = articuloRepository.findByProductoNombreAndTallaTallaAndColorColor(
+    //             nombreProducto, talla, color);
         
-        if (articuloOpt.isEmpty()) {
-            throw new RuntimeException("Article not found with product: " + nombreProducto + 
-                                     ", size: " + talla + ", color: " + color);
-        }
+    //     if (articuloOpt.isEmpty()) {
+    //         throw new RuntimeException("Article not found with product: " + nombreProducto + 
+    //                                  ", size: " + talla + ", color: " + color);
+    //     }
         
-        return articuloOpt.get();
-    }
+    //     return articuloOpt.get();
+    // }
 
 }
