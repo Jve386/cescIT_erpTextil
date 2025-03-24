@@ -29,6 +29,17 @@
                         </q-card-section>
                     </q-card>
                 </div>
+                <!-- Ventas Diarias -->
+                <div class="col-12">
+                    <q-card>
+                        <q-card-section>
+                            <div class="text-h6">Ventas Diarias</div>
+                            <div class="chart-container" style="position: relative; height: 400px;">
+                                <canvas ref="ventasChart"></canvas>
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                </div>
             </div>
         </div>
     </q-page>
@@ -48,7 +59,8 @@ export default {
             datosStock: [],
             datosProductos: [],
             almacenes: [],
-            articulos: []
+            articulos: [],
+            datosVentas: [],
         };
     },
     methods: {
@@ -64,9 +76,13 @@ export default {
                 // cargar los datos de stock
                 await this.cargarStocks();
 
+                // cargar los datos de ventas
+                await this.cargarVentas();
+
                 // Crear gráficos
                 this.crearGraficoStock();
                 this.crearGraficoProductos();
+                this.crearGraficoVentas();
             } catch (error) {
                 console.error('Error al cargar estadísticas:', error);
                 this.$q.notify({
@@ -136,7 +152,7 @@ export default {
                     // Obtener el artículo correspondiente para encontrar el idProducto
                     const articulo = this.articulos.find(a => a.id === stock.idArticulo);
                     if (articulo) {
-                        const idProducto = articulo.id; 
+                        const idProducto = articulo.id;
                         if (!stockPorProducto[idProducto]) {
                             stockPorProducto[idProducto] = {
                                 cantidad: 0,
@@ -165,6 +181,34 @@ export default {
                 console.log('Datos procesados - Stock por Producto:', this.datosProductos);
             } catch (error) {
                 console.error('Error al cargar stocks:', error);
+                throw error;
+            }
+        },
+
+        async cargarVentas() {
+            try {
+                const response = await this.$api.get('/ventas');
+                const ventasData = response.data;
+                console.log('Datos de ventas:', ventasData);
+
+                // Procesar datos para Ventas Diarias
+                const ventasPorDia = ventasData.reduce((acc, venta) => {
+                    const fecha = venta.fecha.substring(0, 10); // Extraer solo la fecha (YYYY-MM-DD)
+
+                    // Sumar el total de la venta
+                    acc[fecha] = (acc[fecha] || 0) + parseFloat(venta.totalConIVA);
+                    return acc;
+                }, {});
+
+                this.datosVentas = {
+                    labels: Object.keys(ventasPorDia).sort(), // Ordenar fechas ascendente
+                    valores: Object.values(ventasPorDia),
+                };
+                // Imprimir datos de ventas
+                console.log('Ventas Labels:', this.datosVentas.labels);
+                console.log('Ventas Values:', this.datosVentas.valores);
+            } catch (error) {
+                console.error('Error al cargar ventas:', error);
                 throw error;
             }
         },
@@ -268,7 +312,41 @@ export default {
                     }
                 }
             });
-        }
+        },
+
+        crearGraficoVentas() {
+            const ctx = this.$refs.ventasChart.getContext("2d");
+            // Destruir gráfico existente si hay uno
+            if (this.ventasChart) {
+                this.ventasChart.destroy();
+            }
+
+            this.ventasChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: this.datosVentas.labels,
+                    datasets: [
+                        {
+                            label: "Ventas Totales (€)",
+                            data: this.datosVentas.valores,
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            backgroundColor: "rgba(75, 192, 192, 0.2)",
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: "Fecha" } },
+                        y: { title: { display: true, text: "Ventas (€)" } },
+                    },
+                },
+            });
+        },
     },
     mounted() {
         this.cargarDatos();
@@ -280,6 +358,9 @@ export default {
         }
         if (this.productoChart) {
             this.productoChart.destroy();
+        }
+        if (this.ventasChart) {
+            this.ventasChart.destroy();
         }
     }
 };
